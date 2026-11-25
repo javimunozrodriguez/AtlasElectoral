@@ -1,20 +1,23 @@
 // Interfaz: construcción de paneles HTML. No calcula; recibe valores ya calculados.
-import { totals, pct, compare, resultRows } from './calc.js';
+import { totals, pct, compare, resultRows, votesOf } from './calc.js';
 import { CATS } from './strength.js';
 export const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 export const n0 = v => v == null ? '—' : Math.round(v).toLocaleString('es-ES');
 export const p1 = v => v == null ? '—' : v.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' %';
 export const p2 = v => v == null ? '—' : v.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// Identificación legible de una sección (el código CUSEC original se conserva solo para uniones internas)
+export const secLabel = id => `Distrito ${id.slice(5, 7)} - Sección ${id.slice(7, 10)}`;
+const GCOL = { izq: '#a50f15', der: '#08519c', na: '#737373' };
 const kv = rows => `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
-export const TABS = [['resumen', 'Resumen'], ['resultados', 'Resultados'], ['agregacion', 'Agregación'], ['fortaleza', 'Fortaleza'], ['validacion', 'Validación']];
+export const TABS = [['resumen', 'Resumen'], ['resultados', 'Resultados'], ['grupos', 'Agrupaciones'], ['agregacion', 'Agregación'], ['fortaleza', 'Fortaleza'], ['validacion', 'Validación']];
 export const tabsHtml = cur => TABS.map(([k, l]) => `<button data-tab="${k}" class="${k === cur ? 'on' : ''}">${l}</button>`).join('');
 
 export function warnings(S) {
   const m = S.muni, v = S.val, w = [];
   if (m.diff) w.push('Los totales oficiales del municipio no coinciden con la suma de sus mesas (datos de origen). La tabla usa los oficiales; el mapa, las agregaciones y la fortaleza usan la suma de secciones.');
   const nr = v.resultados_sin_poligono.filter(x => x.seccion.startsWith(S.cumun)), np = v.poligonos_sin_resultados_en_municipios_con_mesas.filter(x => x.seccion.startsWith(S.cumun));
-  if (nr.length) w.push(`${nr.length} sección(es) con resultados no tienen polígono en la cartografía (${nr.map(x => x.seccion.slice(5)).join(', ')}); cuentan en los totales pero no se ven en el mapa.`);
-  if (np.length) w.push(`${np.length} polígono(s) sin resultados (${np.map(x => x.seccion.slice(5)).join(', ')}) se muestran en gris.`);
+  if (nr.length) w.push(`${nr.length} sección(es) con resultados no tienen polígono en la cartografía (${nr.map(x => secLabel(x.seccion)).join('; ')}); cuentan en los totales pero no se ven en el mapa.`);
+  if (np.length) w.push(`${np.length} polígono(s) sin resultados (${np.map(x => secLabel(x.seccion)).join('; ')}) se muestran en gris.`);
   return w.map(x => `<p class="warn">⚠ ${esc(x)}</p>`).join('');
 }
 export function resumen(S) {
@@ -58,18 +61,31 @@ export function fortaleza(S, f) {
 export function validacion(v) {
   const list = (t, a, f) => `<details><summary>${t} <b>${a.length}</b></summary><div class="scroll">${a.slice(0, 300).map(f).join('<br>') || '—'}</div></details>`;
   return `<h3>Validación de datos (${esc(v.eleccion)})</h3>${kv([['Mesas', n0(v.mesas)], ['Mesas duplicadas', v.mesas_duplicadas], ['Secciones con resultados', n0(v.secciones_con_resultados)], ['Polígonos en cartografía', n0(v.poligonos)], ['Municipios con mesas', n0(v.municipios_con_mesas)], ['Municipios < 250 hab. (sin secciones)', n0(v.municipios_menores_250)]])}
-  ${list('Secciones con resultados sin polígono', v.resultados_sin_poligono, x => `${x.seccion} · censo ${x.censo} · votos ${x.votos_cand}`)}
-  ${list('Polígonos sin resultados (municipios con mesas)', v.poligonos_sin_resultados_en_municipios_con_mesas, x => `${x.seccion} · ${esc(x.muni)}`)}
+  ${list('Secciones con resultados sin polígono', v.resultados_sin_poligono, x => `${secLabel(x.seccion)} (municipio ${x.seccion.slice(0, 5)}) · censo ${x.censo} · votos ${x.votos_cand}`)}
+  ${list('Polígonos sin resultados (municipios con mesas)', v.poligonos_sin_resultados_en_municipios_con_mesas, x => `${secLabel(x.seccion)} · ${esc(x.muni)}`)}
   ${list('Municipios sin resultados en ningún fichero', v.municipios_sin_resultados, x => `${x.muni} · ${esc(x.nombre)} (${esc(x.provincia)})`)}
   ${list('Oficial ≠ suma de secciones (municipios)', v.municipios_diferencia_oficial_vs_secciones, x => `${x.muni} ${esc(x.nombre)}: oficial [${x.oficial}] vs secciones [${x.suma_secciones}]`)}
   ${list('Mesas con votos 09 ≠ suma fichero 10', v.mesas_inconsistentes_09_10, x => `${x.mesa}: ${x.cand09} vs ${x.suma10}`)}
-  ${list('Secciones con participación > 100 %', v.secciones_participacion_mayor_100, x => `${x.seccion}: ${x.votantes} votantes, censo ${x.censo}`)}
+  ${list('Secciones con participación > 100 %', v.secciones_participacion_mayor_100, x => `${secLabel(x.seccion)} (municipio ${x.seccion.slice(0, 5)}): ${x.votantes} votantes, censo ${x.censo}`)}
   <p class="mut">Pares municipio-candidatura con fichero 06 ≠ suma de mesas: ${v.pares_municipio_candidatura_06_vs_10_distintos}. Las discrepancias se informan, no se corrigen.</p>`;
 }
 export function popup(S, id, s, extra) {
   const t = totals(s), rows = Object.entries(s[4]).sort((a, b) => b[1] - a[1]);
-  return `<div class="pop"><b>Sección ${id.slice(0, 2)}-${id.slice(2, 5)}-${id.slice(5, 7)}-${id.slice(7)}</b><div class="mut">${id}</div>
-  ${kv([['Población', 'no disponible por sección'], ['Censo electoral', n0(t.censo)], ['Votos emitidos', n0(t.emitidos)], ['Participación', p1(t.part)], ['Votos en blanco', n0(t.blancos)], ['Votos nulos', n0(t.nulos)]])}${extra || ''}
+  return `<div class="pop"><b>${secLabel(id)}</b>
+  ${kv([['Censo electoral', n0(t.censo)], ['Votos emitidos', n0(t.emitidos)], ['Participación', p1(t.part)], ['Votos en blanco', n0(t.blancos)], ['Votos nulos', n0(t.nulos)]])}${extra || ''}
   <table><tr><th>Candidatura</th><th class="r">Votos</th><th class="r">%</th></tr>${rows.map(([c, v]) => `<tr><td>${esc(S.cands[c] || c)}</td><td class="r">${n0(v)}</td><td class="r">${p2(pct(v, t.validos))}</td></tr>`).join('')}</table></div>`;
 }
 export const CAT_TXT = CATS;
+
+export function grupos(S, store) {
+  const rows = resultRows(S.muni, S.cands), t = totals(S.base), G = store.groups();
+  const inG = g => rows.filter(r => store.groupOf(r.siglas) === g).map(r => r.cod);
+  const res = G.map(g => { const v = votesOf(S.base, inG(g.id)); return { g, n: inG(g.id).length, v, p: pct(v, t.validos) }; });
+  const rest = t.cand - res.reduce((a, r) => a + r.v, 0), col = id => GCOL[id] || '#737373';
+  return `<h3>Agrupaciones</h3><p class="mut">Asigna cada candidatura a la agrupación que prefieras; se guarda en este navegador y se recuerda en otros municipios por sus siglas. Los votos se suman y el % es sobre votos válidos (blancos incluidos).</p>
+  <div class="checks"><table class="grp"><tr><th>Candidatura</th>${G.map(g => `<th class="c">${esc(g.name)}</th>`).join('')}</tr>${rows.map(r => `<tr><td>${esc(r.siglas)} <span class="mut">${n0(r.votos)}</span></td>${G.map(g => `<td class="c"><input type="checkbox" data-sig="${esc(r.siglas)}" data-g="${g.id}" ${store.groupOf(r.siglas) === g.id ? 'checked' : ''}></td>`).join('')}</tr>`).join('')}</table></div>
+  <h3>Resultado por agrupación</h3>${kv(res.map(r => [`<i class="sw" style="background:${col(r.g.id)}"></i>${esc(r.g.name)} <span class="mut">(${r.n} cand.)</span>`, `<b>${n0(r.v)}</b> · ${p2(r.p)} %`]).concat([['Sin agrupar (cand.) + blancos', `${n0(rest + t.blancos)} · ${p2(pct(rest + t.blancos, t.validos))} %`]]))}
+  <div class="bar">${res.map(r => `<span style="width:${r.p || 0}%;background:${col(r.g.id)}"></span>`).join('')}</div>
+  <p class="seg">${res.map(r => `<button data-viewg="${r.g.id}">Ver ${esc(r.g.name)} en el mapa</button>`).join('')}</p>
+  <p class="mut">Suma de secciones (misma base que el mapa). Ninguna candidatura viene clasificada de antemano.</p>`;
+}

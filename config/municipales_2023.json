@@ -1,15 +1,221 @@
 {
- "id": "municipales-2023", "label": "Municipales 2023", "suffix": "042305",
- "files": {"cands":"03","muni":"05","muni_c":"06","mesa":"09","mesa_c":"10","small":"11"},
- "fields": {
-  "cands":  {"cod":[9,14],"siglas":[15,64]},
-  "muni":   {"pro":[12,13],"mun":[14,16],"dis":[17,18],"nombre":[19,118],"pob":[129,136],"censo_esc":[150,157],"blancos":[190,197],"nulos":[198,205],"cand":[206,213],"esc":[214,216]},
-  "muni_c": {"pro":[10,11],"mun":[12,14],"dis":[15,16],"cod":[17,22],"votos":[23,30],"conc":[31,33]},
-  "mesa":   {"pro":[12,13],"mun":[14,16],"dis":[17,18],"sec":[19,21],"sec4":[22,22],"mesa":[23,23],"censo_esc":[31,37],"blancos":[66,72],"nulos":[73,79],"cand":[80,86]},
-  "mesa_c": {"pro":[12,13],"mun":[14,16],"dis":[17,18],"sec":[19,21],"mesa":[23,23],"cod":[24,29],"votos":[30,36]},
-  "small":  {"pro":[12,13],"mun":[14,16],"nombre":[17,116],"pob":[126,128],"censo_esc":[134,136],"blancos":[149,151],"nulos":[152,154],"cand":[155,157]}
+ "id": "municipales-2023",
+ "label": "Municipales 2023",
+ "suffix": "042305",
+ "files": {
+  "cands": "03",
+  "muni": "05",
+  "muni_c": "06",
+  "mesa": "09",
+  "mesa_c": "10",
+  "small": "11"
  },
- "encoding": {"cands":"latin-1","muni":"latin-1","muni_c":"utf-8","mesa":"utf-8","mesa_c":"utf-8","small":"latin-1"},
+ "fields": {
+  "cands": {
+   "cod": [
+    9,
+    14
+   ],
+   "siglas": [
+    15,
+    64
+   ],
+   "nombre": [
+    65,
+    214
+   ]
+  },
+  "muni": {
+   "pro": [
+    12,
+    13
+   ],
+   "mun": [
+    14,
+    16
+   ],
+   "dis": [
+    17,
+    18
+   ],
+   "nombre": [
+    19,
+    118
+   ],
+   "pob": [
+    129,
+    136
+   ],
+   "censo_esc": [
+    150,
+    157
+   ],
+   "blancos": [
+    190,
+    197
+   ],
+   "nulos": [
+    198,
+    205
+   ],
+   "cand": [
+    206,
+    213
+   ],
+   "esc": [
+    214,
+    216
+   ]
+  },
+  "muni_c": {
+   "pro": [
+    10,
+    11
+   ],
+   "mun": [
+    12,
+    14
+   ],
+   "dis": [
+    15,
+    16
+   ],
+   "cod": [
+    17,
+    22
+   ],
+   "votos": [
+    23,
+    30
+   ],
+   "conc": [
+    31,
+    33
+   ]
+  },
+  "mesa": {
+   "pro": [
+    12,
+    13
+   ],
+   "mun": [
+    14,
+    16
+   ],
+   "dis": [
+    17,
+    18
+   ],
+   "sec": [
+    19,
+    21
+   ],
+   "sec4": [
+    22,
+    22
+   ],
+   "mesa": [
+    23,
+    23
+   ],
+   "censo_esc": [
+    31,
+    37
+   ],
+   "blancos": [
+    66,
+    72
+   ],
+   "nulos": [
+    73,
+    79
+   ],
+   "cand": [
+    80,
+    86
+   ]
+  },
+  "mesa_c": {
+   "pro": [
+    12,
+    13
+   ],
+   "mun": [
+    14,
+    16
+   ],
+   "dis": [
+    17,
+    18
+   ],
+   "sec": [
+    19,
+    21
+   ],
+   "mesa": [
+    23,
+    23
+   ],
+   "cod": [
+    24,
+    29
+   ],
+   "votos": [
+    30,
+    36
+   ]
+  },
+  "small": {
+   "pro": [
+    12,
+    13
+   ],
+   "mun": [
+    14,
+    16
+   ],
+   "nombre": [
+    17,
+    116
+   ],
+   "pob": [
+    126,
+    128
+   ],
+   "censo_esc": [
+    134,
+    136
+   ],
+   "blancos": [
+    149,
+    151
+   ],
+   "nulos": [
+    152,
+    154
+   ],
+   "cand": [
+    155,
+    157
+   ]
+  }
+ },
+ "encoding": {
+  "cands": "latin-1",
+  "muni": "latin-1",
+  "muni_c": "utf-8",
+  "mesa": "utf-8",
+  "mesa_c": "utf-8",
+  "small": "latin-1"
+ },
  "totalDistrict": "99",
- "shapefile": {"name":"SECC_CE_20230101","crs":"EPSG:25830","key":"CUSEC","muni":"CUMUN","muniName":"NMUN","proName":"NPRO","pro":"CPRO"}
+ "shapefile": {
+  "name": "SECC_CE_20230101",
+  "crs": "EPSG:25830",
+  "key": "CUSEC",
+  "muni": "CUMUN",
+  "muniName": "NMUN",
+  "proName": "NPRO",
+  "pro": "CPRO"
+ }
 }

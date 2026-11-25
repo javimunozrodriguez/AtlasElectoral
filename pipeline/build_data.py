@@ -75,7 +75,7 @@ def main():
     I = lambda s: int(s) if s.strip() else 0
     sh = cfg['shapefile']; base = glob.glob(os.path.join(a.shp, '**', sh['name'] + '.shp'), recursive=True)[0][:-4]
     attrs = read_dbf(base+'.dbf'); shapes = read_shp(base+'.shp'); TD = cfg['totalDistrict']
-    cands = {c['cod']: c['siglas'].strip() for c in R['cands']}
+    cands = {c['cod']: c['siglas'].strip() for c in R['cands']}; names = {c['cod']: c['nombre'].strip() for c in R['cands']}
     # mesas -> secciones: suma de votos originales
     secs = {}; mesa_keys = set(); dup = 0; mesa_inc = []
     mc = collections.defaultdict(lambda: collections.defaultdict(int))
@@ -116,11 +116,11 @@ def main():
         if st == 0: missing.append({"muni": m, "nombre": nm, "provincia": npro})
         index.append([m, nm, npro, st])
     for p in sorted({m[:2] for m in cart_muni}):
-        feats = []; res = {"cands": {}, "muni": {}}
+        feats = []; res = {"cands": {}, "names": {}, "muni": {}}
         for m in [m for m in cart_muni if m[:2] == p]:
             if m in muni:
                 d = muni[m]; d['s'] = byp[p].get(m, {}); res['muni'][m] = d
-                for c in list(d.get('off', {})) + [c for s in d['s'].values() for c in s[4]]: res['cands'][c] = cands.get(c, '?')
+                for c in list(d.get('off', {})) + [c for s in d['s'].values() for c in s[4]]: res['cands'][c] = cands.get(c, '?'); res['names'][c] = names.get(c, '')
                 for k in sorted(kk for kk in cart_keys if kk.startswith(m)):
                     if k in res_keys: feats.append({"type": "Feature", "properties": {"id": k}, "geometry": geom(A[k][1], a.tol)})
                     else:
