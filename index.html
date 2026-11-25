@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atlas electoral municipal</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="stylesheet" href="css/app.css"></head>
+<body>
+<header>
+  <div class="brand">Atlas electoral</div>
+  <select id="elec" title="Elección"></select>
+  <div class="search"><input id="q" type="search" placeholder="Buscar municipio…" autocomplete="off"><ul id="results" hidden></ul></div>
+  <select id="mode" title="Modalidad de mapa">
+    <option value="participacion">Participación</option><option value="votos">Votos de una candidatura</option>
+    <option value="pct">% de voto de una candidatura</option><option value="agregado">Resultado agregado</option><option value="fortaleza">Fortaleza territorial</option>
+  </select>
+  <select id="cand" title="Candidatura"></select>
+  <label class="chk"><input type="checkbox" id="base" checked> Mapa base</label>
+</header>
+<main><div id="map"></div><aside><nav id="tabs"></nav><div id="panel"></div></aside></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script type="module" src="js/main.js"></script>
+</body></html>

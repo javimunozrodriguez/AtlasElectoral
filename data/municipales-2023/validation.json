@@ -1,0 +1,1109 @@
+{
+ "eleccion": "municipales-2023",
+ "mesas": 57681,
+ "mesas_duplicadas": 0,
+ "mesas_inconsistentes_09_10": [
+  {
+   "mesa": "09-330-01-001-A",
+   "cand09": 383,
+   "suma10": 382
+  },
+  {
+   "mesa": "09-330-01-001-B",
+   "cand09": 317,
+   "suma10": 315
+  },
+  {
+   "mesa": "24-056-01-001-B",
+   "cand09": 394,
+   "suma10": 392
+  },
+  {
+   "mesa": "15-066-01-001-B",
+   "cand09": 408,
+   "suma10": 401
+  },
+  {
+   "mesa": "03-019-03-005-A",
+   "cand09": 368,
+   "suma10": 367
+  },
+  {
+   "mesa": "03-019-04-002-U",
+   "cand09": 468,
+   "suma10": 472
+  }
+ ],
+ "secciones_con_resultados": 33601,
+ "poligonos": 36462,
+ "municipios_con_mesas": 5272,
+ "municipios_menores_250": 2815,
+ "resultados_sin_poligono": [
+  {
+   "seccion": "0200302025",
+   "censo": 811,
+   "votos_cand": 593
+  },
+  {
+   "seccion": "0200307018",
+   "censo": 970,
+   "votos_cand": 674
+  },
+  {
+   "seccion": "0301408031",
+   "censo": 904,
+   "votos_cand": 471
+  },
+  {
+   "seccion": "0303104006",
+   "censo": 1028,
+   "votos_cand": 554
+  },
+  {
+   "seccion": "0306507027",
+   "censo": 677,
+   "votos_cand": 465
+  },
+  {
+   "seccion": "0402401003",
+   "censo": 800,
+   "votos_cand": 559
+  },
+  {
+   "seccion": "0410004002",
+   "censo": 716,
+   "votos_cand": 272
+  },
+  {
+   "seccion": "0490201051",
+   "censo": 1009,
+   "votos_cand": 478
+  },
+  {
+   "seccion": "0608303011",
+   "censo": 917,
+   "votos_cand": 627
+  },
+  {
+   "seccion": "0608304014",
+   "censo": 1324,
+   "votos_cand": 930
+  },
+  {
+   "seccion": "0608306010",
+   "censo": 1063,
+   "votos_cand": 642
+  },
+  {
+   "seccion": "0615302006",
+   "censo": 1190,
+   "votos_cand": 795
+  },
+  {
+   "seccion": "0801504017",
+   "censo": 1180,
+   "votos_cand": 799
+  },
+  {
+   "seccion": "0801508014",
+   "censo": 632,
+   "votos_cand": 397
+  },
+  {
+   "seccion": "0811901003",
+   "censo": 1658,
+   "votos_cand": 963
+  },
+  {
+   "seccion": "0811901004",
+   "censo": 1823,
+   "votos_cand": 1123
+  },
+  {
+   "seccion": "0811901005",
+   "censo": 1526,
+   "votos_cand": 781
+  },
+  {
+   "seccion": "0811901006",
+   "censo": 1228,
+   "votos_cand": 525
+  },
+  {
+   "seccion": "0830101017",
+   "censo": 651,
+   "votos_cand": 327
+  },
+  {
+   "seccion": "0830101018",
+   "censo": 728,
+   "votos_cand": 443
+  },
+  {
+   "seccion": "1014804015",
+   "censo": 1040,
+   "votos_cand": 655
+  },
+  {
+   "seccion": "1500401004",
+   "censo": 763,
+   "votos_cand": 482
+  },
+  {
+   "seccion": "1500501012",
+   "censo": 886,
+   "votos_cand": 458
+  },
+  {
+   "seccion": "1505802013",
+   "censo": 872,
+   "votos_cand": 504
+  },
+  {
+   "seccion": "1507501007",
+   "censo": 1153,
+   "votos_cand": 701
+  },
+  {
+   "seccion": "1507805024",
+   "censo": 687,
+   "votos_cand": 380
+  },
+  {
+   "seccion": "2608904040",
+   "censo": 741,
+   "votos_cand": 521
+  },
+  {
+   "seccion": "2702203002",
+   "censo": 615,
+   "votos_cand": 424
+  },
+  {
+   "seccion": "2808002028",
+   "censo": 1278,
+   "votos_cand": 963
+  },
+  {
+   "seccion": "2900701022",
+   "censo": 874,
+   "votos_cand": 433
+  },
+  {
+   "seccion": "3602101006",
+   "censo": 905,
+   "votos_cand": 590
+  },
+  {
+   "seccion": "4102406006",
+   "censo": 1142,
+   "votos_cand": 385
+  },
+  {
+   "seccion": "4509901003",
+   "censo": 1234,
+   "votos_cand": 660
+  },
+  {
+   "seccion": "4607001005",
+   "censo": 1077,
+   "votos_cand": 682
+  },
+  {
+   "seccion": "4607001006",
+   "censo": 1018,
+   "votos_cand": 655
+  },
+  {
+   "seccion": "4607001007",
+   "censo": 1000,
+   "votos_cand": 610
+  },
+  {
+   "seccion": "4607001008",
+   "censo": 1191,
+   "votos_cand": 742
+  },
+  {
+   "seccion": "4607001009",
+   "censo": 1219,
+   "votos_cand": 717
+  },
+  {
+   "seccion": "4607001010",
+   "censo": 1214,
+   "votos_cand": 791
+  },
+  {
+   "seccion": "4607001011",
+   "censo": 1287,
+   "votos_cand": 944
+  },
+  {
+   "seccion": "4607001012",
+   "censo": 1283,
+   "votos_cand": 898
+  },
+  {
+   "seccion": "4607001013",
+   "censo": 1264,
+   "votos_cand": 924
+  },
+  {
+   "seccion": "4607001014",
+   "censo": 1299,
+   "votos_cand": 827
+  },
+  {
+   "seccion": "4607001015",
+   "censo": 1306,
+   "votos_cand": 807
+  },
+  {
+   "seccion": "4607001016",
+   "censo": 1110,
+   "votos_cand": 711
+  },
+  {
+   "seccion": "4612301002",
+   "censo": 1228,
+   "votos_cand": 833
+  },
+  {
+   "seccion": "5006201002",
+   "censo": 1085,
+   "votos_cand": 727
+  }
+ ],
+ "poligonos_sin_resultados_en_municipios_con_mesas": [
+  {
+   "seccion": "0301402025",
+   "muni": "Alacant/Alicante"
+  },
+  {
+   "seccion": "0301901005",
+   "muni": "Aspe"
+  },
+  {
+   "seccion": "0306505007",
+   "muni": "Elx/Elche"
+  },
+  {
+   "seccion": "0501401002",
+   "muni": "Arenas de San Pedro"
+  },
+  {
+   "seccion": "0601505014",
+   "muni": "Badajoz"
+  },
+  {
+   "seccion": "0601506003",
+   "muni": "Badajoz"
+  },
+  {
+   "seccion": "0602301002",
+   "muni": "Cabeza del Buey"
+  },
+  {
+   "seccion": "0605901002",
+   "muni": "Granja de Torrehermosa"
+  },
+  {
+   "seccion": "0606701003",
+   "muni": "Higuera la Real"
+  },
+  {
+   "seccion": "0608601002",
+   "muni": "Montemolín"
+  },
+  {
+   "seccion": "0809202001",
+   "muni": "Gironella"
+  },
+  {
+   "seccion": "1002101002",
+   "muni": "Arroyo de la Luz"
+  },
+  {
+   "seccion": "1301104001",
+   "muni": "Almadén"
+  },
+  {
+   "seccion": "1403701002",
+   "muni": "Iznájar"
+  },
+  {
+   "seccion": "1503501004",
+   "muni": "Fene"
+  },
+  {
+   "seccion": "1503603002",
+   "muni": "Ferrol"
+  },
+  {
+   "seccion": "1503607009",
+   "muni": "Ferrol"
+  },
+  {
+   "seccion": "1505501004",
+   "muni": "Neda"
+  },
+  {
+   "seccion": "1506102003",
+   "muni": "Ortigueira"
+  },
+  {
+   "seccion": "1506503002",
+   "muni": "Padrón"
+  },
+  {
+   "seccion": "1506803002",
+   "muni": "Ponteceso"
+  },
+  {
+   "seccion": "1507601003",
+   "muni": "San Sadurniño"
+  },
+  {
+   "seccion": "1508402002",
+   "muni": "Tordoia"
+  },
+  {
+   "seccion": "2007902012",
+   "muni": "Zarautz"
+  },
+  {
+   "seccion": "2301801002",
+   "muni": "Cambil"
+  },
+  {
+   "seccion": "2303301002",
+   "muni": "Frailes"
+  },
+  {
+   "seccion": "2305601002",
+   "muni": "Lopera"
+  },
+  {
+   "seccion": "2309401002",
+   "muni": "Vilches"
+  },
+  {
+   "seccion": "2390102001",
+   "muni": "Cárcheles"
+  },
+  {
+   "seccion": "2390402002",
+   "muni": "Santiago-Pontones"
+  },
+  {
+   "seccion": "2701201002",
+   "muni": "Cervantes"
+  },
+  {
+   "seccion": "2702204001",
+   "muni": "Guitiriz"
+  },
+  {
+   "seccion": "2702204002",
+   "muni": "Guitiriz"
+  },
+  {
+   "seccion": "2908405001",
+   "muni": "Ronda"
+  },
+  {
+   "seccion": "3604204002",
+   "muni": "Ponteareas"
+  },
+  {
+   "seccion": "4516807017",
+   "muni": "Toledo"
+  },
+  {
+   "seccion": "4607002001",
+   "muni": "Bétera"
+  },
+  {
+   "seccion": "4607002002",
+   "muni": "Bétera"
+  },
+  {
+   "seccion": "4607002003",
+   "muni": "Bétera"
+  },
+  {
+   "seccion": "4607002004",
+   "muni": "Bétera"
+  },
+  {
+   "seccion": "4607002005",
+   "muni": "Bétera"
+  },
+  {
+   "seccion": "4607002006",
+   "muni": "Bétera"
+  },
+  {
+   "seccion": "4607002007",
+   "muni": "Bétera"
+  },
+  {
+   "seccion": "4607002008",
+   "muni": "Bétera"
+  },
+  {
+   "seccion": "4607002009",
+   "muni": "Bétera"
+  },
+  {
+   "seccion": "4802005013",
+   "muni": "Bilbao"
+  },
+  {
+   "seccion": "4802006032",
+   "muni": "Bilbao"
+  },
+  {
+   "seccion": "4802007007",
+   "muni": "Bilbao"
+  },
+  {
+   "seccion": "4802007031",
+   "muni": "Bilbao"
+  }
+ ],
+ "poligonos_municipios_menores_250": 2815,
+ "municipios_sin_resultados": [
+  {
+   "muni": "09262",
+   "nombre": "Peral de Arlanza",
+   "provincia": "Burgos"
+  },
+  {
+   "muni": "09294",
+   "nombre": "Quintanilla de la Mata",
+   "provincia": "Burgos"
+  },
+  {
+   "muni": "09394",
+   "nombre": "Trespaderne",
+   "provincia": "Burgos"
+  },
+  {
+   "muni": "09480",
+   "nombre": "Zael",
+   "provincia": "Burgos"
+  },
+  {
+   "muni": "31021",
+   "nombre": "Aranarache/Aranaratxe",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31022",
+   "nombre": "Arantza",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31031",
+   "nombre": "Areso",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31034",
+   "nombre": "Aribe",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31040",
+   "nombre": "Atez/Atetz",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31045",
+   "nombre": "Barásoain",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31047",
+   "nombre": "Bargota",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31051",
+   "nombre": "Beire",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31052",
+   "nombre": "Belascoáin",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31058",
+   "nombre": "Auritz/Burguete",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31059",
+   "nombre": "Burgui/Burgi",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31080",
+   "nombre": "Dicastillo",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31090",
+   "nombre": "Eratsun",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31093",
+   "nombre": "Ezcároz/Ezkaroze",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31094",
+   "nombre": "Eslava",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31099",
+   "nombre": "Etayo",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31113",
+   "nombre": "Garde",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31115",
+   "nombre": "Garralda",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31128",
+   "nombre": "Isaba/Izaba",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31130",
+   "nombre": "Iturmendi",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31133",
+   "nombre": "Izalzu/Itzaltzu",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31148",
+   "nombre": "Legaria",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31154",
+   "nombre": "Lezaun",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31180",
+   "nombre": "Muruzábal",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31181",
+   "nombre": "Navascués/Nabaskoze",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31195",
+   "nombre": "Orbaizeta",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31197",
+   "nombre": "Orísoain",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31199",
+   "nombre": "Oroz-Betelu/Orotz-Betelu",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31212",
+   "nombre": "Sada",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31222",
+   "nombre": "Sarriés/Sartze",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31229",
+   "nombre": "Tirapu",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31244",
+   "nombre": "Urroz",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31245",
+   "nombre": "Urzainqui/Urzainki",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31246",
+   "nombre": "Uterga",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31247",
+   "nombre": "Uztárroz/Uztarroze",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31252",
+   "nombre": "Vidángoz/Bidankoze",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31256",
+   "nombre": "Hiriberri/Villanueva de Aezkoa",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "31263",
+   "nombre": "Zubieta",
+   "provincia": "Navarra"
+  },
+  {
+   "muni": "40036",
+   "nombre": "Cabezuela",
+   "provincia": "Segovia"
+  },
+  {
+   "muni": "44154",
+   "nombre": "Monroyo",
+   "provincia": "Teruel"
+  }
+ ],
+ "municipios_diferencia_oficial_vs_secciones": [
+  {
+   "muni": "04045",
+   "nombre": "Fiñana",
+   "oficial": [
+    1673,
+    9,
+    7,
+    1390
+   ],
+   "suma_secciones": [
+    1673,
+    10,
+    10,
+    1358
+   ]
+  },
+  {
+   "muni": "04049",
+   "nombre": "Garrucha",
+   "oficial": [
+    6238,
+    43,
+    49,
+    4127
+   ],
+   "suma_secciones": [
+    6238,
+    43,
+    49,
+    4007
+   ]
+  },
+  {
+   "muni": "50067",
+   "nombre": "Calatayud",
+   "oficial": [
+    14246,
+    188,
+    227,
+    8785
+   ],
+   "suma_secciones": [
+    14246,
+    188,
+    227,
+    8784
+   ]
+  },
+  {
+   "muni": "39044",
+   "nombre": "Miengo",
+   "oficial": [
+    4283,
+    48,
+    73,
+    2781
+   ],
+   "suma_secciones": [
+    4283,
+    48,
+    73,
+    2739
+   ]
+  },
+  {
+   "muni": "19046",
+   "nombre": "Azuqueca de Henares",
+   "oficial": [
+    23156,
+    209,
+    236,
+    14274
+   ],
+   "suma_secciones": [
+    23156,
+    209,
+    237,
+    14273
+   ]
+  },
+  {
+   "muni": "19130",
+   "nombre": "Guadalajara",
+   "oficial": [
+    62196,
+    528,
+    529,
+    41280
+   ],
+   "suma_secciones": [
+    62196,
+    528,
+    530,
+    41279
+   ]
+  },
+  {
+   "muni": "24056",
+   "nombre": "Cistierna",
+   "oficial": [
+    2571,
+    11,
+    34,
+    1828
+   ],
+   "suma_secciones": [
+    2571,
+    11,
+    34,
+    1830
+   ]
+  },
+  {
+   "muni": "34004",
+   "nombre": "Aguilar de Campoo",
+   "oficial": [
+    5368,
+    47,
+    88,
+    3513
+   ],
+   "suma_secciones": [
+    5364,
+    47,
+    88,
+    3513
+   ]
+  },
+  {
+   "muni": "40219",
+   "nombre": "Vallelado",
+   "oficial": [
+    545,
+    8,
+    8,
+    375
+   ],
+   "suma_secciones": [
+    545,
+    8,
+    9,
+    374
+   ]
+  },
+  {
+   "muni": "47054",
+   "nombre": "Cogeces del Monte",
+   "oficial": [
+    561,
+    4,
+    10,
+    423
+   ],
+   "suma_secciones": [
+    561,
+    4,
+    38,
+    395
+   ]
+  },
+  {
+   "muni": "49023",
+   "nombre": "Bermillo de Sayago",
+   "oficial": [
+    880,
+    3,
+    19,
+    651
+   ],
+   "suma_secciones": [
+    880,
+    2,
+    19,
+    650
+   ]
+  },
+  {
+   "muni": "49095",
+   "nombre": "La Hiniesta",
+   "oficial": [
+    272,
+    4,
+    11,
+    181
+   ],
+   "suma_secciones": [
+    274,
+    4,
+    11,
+    181
+   ]
+  },
+  {
+   "muni": "49127",
+   "nombre": "Morales del Vino",
+   "oficial": [
+    2466,
+    28,
+    31,
+    1393
+   ],
+   "suma_secciones": [
+    2466,
+    32,
+    27,
+    1393
+   ]
+  },
+  {
+   "muni": "49275",
+   "nombre": "Zamora",
+   "oficial": [
+    49353,
+    289,
+    229,
+    29091
+   ],
+   "suma_secciones": [
+    49361,
+    289,
+    229,
+    29088
+   ]
+  },
+  {
+   "muni": "10159",
+   "nombre": "Robledollano",
+   "oficial": [
+    310,
+    6,
+    5,
+    280
+   ],
+   "suma_secciones": [
+    310,
+    6,
+    4,
+    281
+   ]
+  },
+  {
+   "muni": "15066",
+   "nombre": "O Pino",
+   "oficial": [
+    3903,
+    39,
+    46,
+    2873
+   ],
+   "suma_secciones": [
+    3903,
+    39,
+    46,
+    2880
+   ]
+  },
+  {
+   "muni": "32023",
+   "nombre": "Castro Caldelas",
+   "oficial": [
+    1122,
+    3,
+    16,
+    885
+   ],
+   "suma_secciones": [
+    1123,
+    7,
+    19,
+    808
+   ]
+  },
+  {
+   "muni": "48071",
+   "nombre": "Muskiz",
+   "oficial": [
+    5941,
+    64,
+    58,
+    4002
+   ],
+   "suma_secciones": [
+    5941,
+    64,
+    59,
+    4001
+   ]
+  },
+  {
+   "muni": "48082",
+   "nombre": "Santurtzi",
+   "oficial": [
+    37016,
+    373,
+    320,
+    20755
+   ],
+   "suma_secciones": [
+    37016,
+    373,
+    322,
+    20753
+   ]
+  },
+  {
+   "muni": "30018",
+   "nombre": "Ceutí",
+   "oficial": [
+    8956,
+    56,
+    146,
+    5990
+   ],
+   "suma_secciones": [
+    8956,
+    59,
+    161,
+    5995
+   ]
+  },
+  {
+   "muni": "30024",
+   "nombre": "Lorca",
+   "oficial": [
+    61908,
+    386,
+    398,
+    40224
+   ],
+   "suma_secciones": [
+    61908,
+    386,
+    409,
+    40213
+   ]
+  },
+  {
+   "muni": "03019",
+   "nombre": "Aspe",
+   "oficial": [
+    16092,
+    99,
+    138,
+    11096
+   ],
+   "suma_secciones": [
+    16092,
+    99,
+    138,
+    11093
+   ]
+  },
+  {
+   "muni": "46116",
+   "nombre": "L'Eliana",
+   "oficial": [
+    14517,
+    147,
+    79,
+    10370
+   ],
+   "suma_secciones": [
+    14517,
+    147,
+    78,
+    10371
+   ]
+  },
+  {
+   "muni": "51001",
+   "nombre": "Ceuta",
+   "oficial": [
+    63301,
+    394,
+    403,
+    33888
+   ],
+   "suma_secciones": [
+    60342,
+    393,
+    385,
+    33753
+   ]
+  },
+  {
+   "muni": "52001",
+   "nombre": "Melilla",
+   "oficial": [
+    61138,
+    394,
+    486,
+    29359
+   ],
+   "suma_secciones": [
+    55198,
+    392,
+    469,
+    29148
+   ]
+  }
+ ],
+ "pares_municipio_candidatura_06_vs_10_distintos": 63,
+ "secciones_participacion_mayor_100": [
+  {
+   "seccion": "4610401002",
+   "censo": 487,
+   "votantes": 492
+  }
+ ]
+}
