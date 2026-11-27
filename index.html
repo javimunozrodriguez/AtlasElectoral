@@ -2,8 +2,69 @@
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Atlas electoral municipal</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
-<link rel="stylesheet" href="css/app.css?v=3"></head>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1c2430;--mut:#6b7686;--line:#e2e6ec;--acc:#0b4f9c;--warn:#8a5a00;--warnbg:#fff6e0}
+@media (prefers-color-scheme:dark){:root{--bg:#161a20;--card:#1e242c;--ink:#e6ebf2;--mut:#9aa6b6;--line:#2d3640;--acc:#6baed6;--warn:#ffd27a;--warnbg:#3a2f14}}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
+header{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 14px;background:var(--card);border-bottom:1px solid var(--line);z-index:1000}
+.brand{font-weight:700;color:var(--acc);margin-right:6px}
+select,input[type=search]{font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.search{position:relative;flex:1 1 260px;max-width:380px}.search input{width:100%}
+#results{position:absolute;top:100%;left:0;right:0;margin:4px 0 0;padding:4px;list-style:none;background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px #0003;max-height:340px;overflow:auto;z-index:2000}
+#results li{padding:7px 9px;border-radius:6px;cursor:pointer}#results li:hover{background:var(--bg)}#results span{color:var(--mut);font-size:12px;margin-left:6px}
+.chk{display:flex;gap:6px;align-items:center;color:var(--mut)}
+main{flex:1;display:grid;grid-template-columns:1fr 390px;min-height:0}
+#map{height:100%;min-height:300px}aside{display:flex;flex-direction:column;background:var(--card);border-left:1px solid var(--line);min-height:0}
+nav{display:flex;border-bottom:1px solid var(--line);overflow-x:auto}nav button{flex:1;border:0;background:none;padding:10px 8px;font:inherit;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+nav button.on{color:var(--acc);border-color:var(--acc);font-weight:600}
+#panel{padding:14px 16px;overflow:auto;flex:1}h2{margin:0}h3{margin:18px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+.sub,.mut{color:var(--mut)}.mut{font-size:12px}.sub{margin:2px 0 8px}
+dl{display:grid;grid-template-columns:1fr auto;gap:5px 12px;margin:0}dt{color:var(--mut)}dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+table{width:100%;border-collapse:collapse;margin:6px 0;font-variant-numeric:tabular-nums}th,td{padding:4px 2px;border-bottom:1px solid var(--line);text-align:left}th{font-size:11px;color:var(--mut)}.r{text-align:right}.tot td{color:var(--mut)}
+.warn{background:var(--warnbg);color:var(--warn);padding:8px 10px;border-radius:8px;font-size:12.5px;margin:8px 0}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.seg button{border:0;background:none;padding:5px 12px;cursor:pointer;color:var(--mut);font:inherit}.seg .on{background:var(--acc);color:#fff}
+.checks{max-height:240px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px}.checks label{display:flex;gap:7px;padding:3px 2px;align-items:center}.checks .mut{margin-left:auto}
+.link{border:0;background:none;color:var(--acc);cursor:pointer;padding:6px 0;font:inherit}
+.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line);margin-top:10px}.a{background:#54278f}.bar .r{background:#9aa6b6}.bar .b{background:#d6c36a}
+.leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 4px 0 10px}.leg i:first-child{margin-left:0}.leg .a{background:#54278f}.leg .r{background:#9aa6b6}.leg .b{background:#d6c36a}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+details{margin:6px 0}summary{cursor:pointer}.scroll{max-height:160px;overflow:auto;font-size:12px;padding:6px 0;color:var(--mut)}
+.legend{background:#fffffff0;color:#1c2430;padding:8px 10px;border-radius:8px;box-shadow:0 2px 10px #0003;font-size:12px;line-height:1.6}.legend i{display:inline-block;width:14px;height:12px;margin-right:6px;border:1px solid #0003;vertical-align:-2px}
+.pop{font-size:12.5px;min-width:230px}.pop dl{font-size:12.5px}.pop table{font-size:12px}.tgt{background:#eef4fb;padding:6px 8px;border-radius:6px;margin:8px 0}
+@media (max-width:900px){main{grid-template-columns:1fr;grid-template-rows:56vh 1fr}aside{border-left:0;border-top:1px solid var(--line)}.search{max-width:none}}
+
+/* --- navegación principal, agrupaciones y D'Hondt --- */
+.main-nav{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.main-nav button{border:0;background:none;padding:6px 14px;font:inherit;color:var(--mut);cursor:pointer}
+body[data-view=mapa] .main-nav [data-view=mapa],body[data-view=concejales] .main-nav [data-view=concejales]{background:var(--acc);color:#fff}
+body[data-view=concejales] #mode,body[data-view=concejales] #cand,body[data-view=concejales] .chk{display:none}
+.grp th.c,.grp td.c{text-align:center;font-size:11px;width:68px}.grp td.c{padding:3px 0}.seg button{padding:5px 10px}p.seg{display:flex;flex-wrap:wrap;gap:6px;border:0}p.seg button{border:1px solid var(--line);border-radius:8px;background:none;color:var(--ink);cursor:pointer;font:inherit}
+#dh{flex:1;overflow:auto;padding:18px 22px;max-width:1180px;width:100%;margin:0 auto}#dh[hidden]{display:none}main[hidden]{display:none}
+.dh-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px}.dh-head label{display:flex;gap:8px;align-items:center;color:var(--mut)}
+.dh-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:14px 0}.dh-grid .card{margin:8px 0}
+.card h3{margin-top:4px}.big{font-size:15px;font-weight:600;margin:2px 0 8px}.ans{font-size:17px;line-height:1.5;background:var(--bg);border-left:4px solid var(--acc);padding:10px 14px;border-radius:8px}
+.sim{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:8px}.sim label{display:flex;flex-direction:column;gap:4px;color:var(--mut)}.sim input{width:140px;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.sim button{font:inherit;padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:none;color:var(--ink);cursor:pointer}.sim button:first-of-type{background:var(--acc);color:#fff;border-color:var(--acc)}
+tr.me td,tr.me th{background:color-mix(in srgb,var(--acc) 10%,transparent)}.up{color:#1a7f37;font-weight:700}.dn{color:#c0392b;font-weight:700}
+.scroll-x{overflow-x:auto}.qt th:first-child{text-align:left;white-space:nowrap}.qt td.w{background:color-mix(in srgb,#2e9e4f 28%,transparent);font-weight:600}
+.qt td.last{outline:2px solid #2e7d32;outline-offset:-2px}.qt td.nx{outline:2px dashed #c0392b;outline-offset:-2px}.qt td.nl{background:color-mix(in srgb,#d6a021 28%,transparent)}
+.leg2 i{display:inline-block;width:14px;height:12px;margin:0 5px 0 12px;vertical-align:-2px;border-radius:2px}.leg2 .w{background:color-mix(in srgb,#2e9e4f 45%,transparent)}.leg2 .last{outline:2px solid #2e7d32}.leg2 .nx{outline:2px dashed #c0392b}.leg2 .nl{background:color-mix(in srgb,#d6a021 45%,transparent)}
+@media (max-width:900px){.dh-grid{grid-template-columns:1fr}#dh{padding:12px}}
+
+/* --- Resultados: zona de análisis territorial con explicaciones --- */
+.tools-h{margin-top:26px;padding-top:16px;border-top:2px solid var(--line)}.tools-h h2{font-size:15px}
+.tool{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:12px 0}.tool-h{display:flex;align-items:center;gap:8px}
+.tool-t{border:0;background:none;font:inherit;font-weight:700;font-size:15px;color:var(--ink);cursor:pointer;padding:2px 0;text-decoration:underline dotted var(--mut);text-underline-offset:4px}
+.ibtn{border:1px solid var(--line);background:none;color:var(--acc);border-radius:50%;width:24px;height:24px;line-height:20px;padding:0;cursor:pointer;font-size:14px}
+.badge{margin-left:auto;font-size:11px;background:var(--acc);color:#fff;border-radius:10px;padding:2px 8px}
+.info{background:var(--bg);border-left:3px solid var(--acc);border-radius:8px;padding:6px 12px;margin:8px 0;font-size:13px}.info[hidden]{display:none}.info p{margin:6px 0}.info ul{margin:6px 0;padding-left:18px}
+.ver{font-weight:400;font-size:11px;color:var(--mut);margin-left:4px}
+</style></head>
 <body data-view="mapa">
+<div id="stale" hidden style="background:#fff3cd;color:#664d03;padding:10px 14px;font:14px system-ui,sans-serif">⚠ La aplicación no se ha cargado completa: faltan archivos o los de la carpeta <b>js/</b> están desactualizados (debería verse «v3» junto al título). Sube la carpeta <b>js/</b> (y <b>css/</b>) al repositorio y recarga con Ctrl+Shift+R.</div>
+<script>
+function staleShow(m){var s=document.getElementById('stale');s.hidden=false;if(m)s.insertAdjacentHTML('beforeend','<br><small>Detalle técnico: '+String(m).replace(/</g,'&lt;')+'</small>');}
+window.addEventListener('error',function(e){staleShow(e.message)});window.addEventListener('unhandledrejection',function(e){staleShow(e.reason&&e.reason.message||e.reason)});
+setTimeout(function(){var v=document.querySelector('.ver');if(!v||!v.textContent)staleShow();},4000);</script>
 <header>
   <div class="brand">Atlas electoral <small class="ver"></small></div>
   <nav class="main-nav"><button data-view="mapa">Mapa</button><button data-view="concejales">Concejales</button></nav>
@@ -20,5 +81,452 @@
 <main><div id="map"></div><aside><nav id="tabs"></nav><div id="panel"></div></aside></main>
 <section id="dh" hidden></section>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-<script type="module" src="js/main.js?v=3"></script>
+<script>
+const NS_calc = (() => {
+// Cálculos de participación, porcentajes y agregaciones. Funciones puras (sin DOM).
+// Una sección/municipio se representa como s = [censo_escrutinio, blancos, nulos, votosCandidaturas, {codCandidatura: votos}]
+const votesOf = (s, cods) => { let v = 0; for (const c of cods) v += s[4][c] || 0; return v; };
+
+function totals(s) {
+  const [censo, blancos, nulos, cand] = s;
+  const validos = cand + blancos;          // válidos = candidaturas + blancos
+  const emitidos = validos + nulos;        // emitidos = válidos + nulos
+  return { censo, blancos, nulos, cand, validos, emitidos, part: censo > 0 ? emitidos / censo * 100 : null };
+}
+const pct = (v, validos) => (validos > 0 ? v / validos * 100 : null);
+
+// Suma de secciones (suma votos originales, nunca porcentajes)
+function sumSections(secs) {
+  const t = [0, 0, 0, 0, {}];
+  for (const s of Object.values(secs)) {
+    for (let i = 0; i < 4; i++) t[i] += s[i];
+    for (const [c, v] of Object.entries(s[4])) t[4][c] = (t[4][c] || 0) + v;
+  }
+  return t;
+}
+// Totales oficiales del municipio (ficheros 05/06) con el mismo formato
+const officialAsSection = m => [m.t[0], m.t[1], m.t[2], m.t[3], Object.fromEntries(Object.entries(m.off || {}).map(([c, a]) => [c, a[0]]))];
+
+function resultRows(m, cands) {
+  const validos = m.t[3] + m.t[1];
+  return Object.entries(m.off || {}).map(([cod, [votos, conc]]) => ({ cod, siglas: cands[cod] || cod, votos, pct: pct(votos, validos), conc }))
+    .sort((a, b) => b.votos - a.votos || a.siglas.localeCompare(b.siglas));
+}
+// Comparación agregado vs resto (sobre votos válidos)
+function compare(s, cods) {
+  const t = totals(s), agg = votesOf(s, cods), resto = t.cand - agg;
+  return { agg, resto, blancos: t.blancos, validos: t.validos, pctAgg: pct(agg, t.validos), pctResto: pct(resto, t.validos), pctBlancos: pct(t.blancos, t.validos) };
+}
+// Cortes de igual intervalo para escalas secuenciales
+function breaks(values, n = 5) {
+  const v = values.filter(x => x != null && isFinite(x)); if (!v.length) return [];
+  const mn = Math.min(...v), mx = Math.max(...v); if (mn === mx) return [mn, mx];
+  return Array.from({ length: n + 1 }, (_, i) => mn + (mx - mn) * i / n);
+}
+const classIndex = (x, br) => { if (br.length < 2) return 0; const n = br.length - 1; for (let i = 1; i < n; i++) if (x < br[i]) return i - 1; return n - 1; };
+
+return {votesOf, totals, pct, sumSections, officialAsSection, resultRows, compare, breaks, classIndex};
+})();
+const NS_strength = (() => {
+// Índice de fortaleza territorial = %partido en sección / %partido en municipio (misma base: votos válidos).
+// Comparaciones con enteros (sin redondeos de coma flotante): índice = vs*VALID / (validosSec*V).
+const CATS = { fuerte: 'Fuerte', medio: 'Medio', debil: 'Débil', sin: 'Sin clasificar', na: 'No aplicable' };
+function classify(vs, validosSec, V, VALID) {
+  if (V === 0) return { cat: 'na', idx: null };                      // el partido no tiene votos en el municipio
+  if (validosSec <= 0) return { cat: 'sin', idx: null };             // sección sin datos válidos
+  const num = vs * VALID, den = validosSec * V, idx = num / den;
+  if (num * 2 > den * 3) return { cat: 'fuerte', idx };              // índice > 1,5
+  if (num * 2 < den) return { cat: 'debil', idx };                   // índice < 0,5 (incluye 0 votos con media > 0)
+  return { cat: 'medio', idx };                                      // 0,5 <= índice <= 1,5
+}
+
+return {CATS, classify};
+})();
+const NS_dhondt = (() => {
+// Reparto de concejales por D'Hondt con barrera del 5 % (LOREG arts. 163.1 y 180). Funciones puras, aritmética entera.
+// cands: [{cod, votos}]; validos = candidaturas + blancos (sin nulos); N = concejales a elegir.
+const BARRERA = 5;
+const umbralVotos = validos => Math.floor((validos * BARRERA + 99) / 100);   // ceil(5 % de válidos)
+const cumple = (votos, validos) => votos > 0 && votos * 100 >= BARRERA * validos;   // "al menos el 5 %"
+
+function distribute(cands, validos, N) {
+  const eligible = [], excluded = [];
+  for (const c of cands) (cumple(c.votos, validos) ? eligible : excluded).push({ ...c, pct: validos > 0 ? c.votos / validos * 100 : null });
+  const q = [];
+  for (const c of eligible) for (let k = 1; k <= N; k++) q.push({ cod: c.cod, k, v: c.votos });
+  // mayor cociente (comparación cruzada exacta); empate de cocientes -> más votos totales (art. 163.1 d)
+  q.sort((a, b) => (b.v * a.k - a.v * b.k) || (b.v - a.v));
+  const win = q.slice(0, N), seats = {}; for (const c of eligible) seats[c.cod] = 0; for (const w of win) seats[w.cod]++;
+  const last = win[N - 1] || null, nextLoser = q[N] || null; let tie = null;
+  if (last && nextLoser && last.v * nextLoser.k === nextLoser.v * last.k) tie = { a: last, b: nextLoser, sorteo: last.v === nextLoser.v };  // sorteo = igualdad total de votos
+  for (const c of eligible) c.seats = seats[c.cod];
+  return { eligible, excluded, seats, win, last, nextLoser, tie, validos, N, umbral: umbralVotos(validos) };
+}
+const nextQuotient = (c, seats) => ({ k: seats + 1, v: c.votos, q: c.votos / (seats + 1) });
+
+// Reparto hipotético: la candidatura `cod` obtiene `extra` votos más (válidos adicionales; se recalcula la barrera con el nuevo total).
+function simulate(cands, validos, N, cod, extra) {
+  return distribute(cands.map(c => c.cod === cod ? { ...c, votos: c.votos + extra } : c), validos + extra, N);
+}
+// Mínimo de votos adicionales (enteros) para que `cod` obtenga un concejal más. Búsqueda exacta sobre el propio reparto (incluye barrera y desempates).
+function votesNeeded(cands, validos, N, cod) {
+  const base = distribute(cands, validos, N), s0 = base.seats[cod] || 0;
+  if (s0 >= N) return null;
+  // Solo cuenta el concejal si es seguro: un escaño que dependa de un sorteo (mismo cociente y mismos votos) no se considera conseguido.
+  const gets = x => { const r = simulate(cands, validos, N, cod, x), t = r.tie; return (r.seats[cod] || 0) > s0 && !(t && t.sorteo && (t.a.cod === cod || t.b.cod === cod)); };
+  let hi = 1; while (!gets(hi)) { hi *= 2; if (hi > 1e9) return null; }
+  let lo = 0; while (hi - lo > 1) { const m = Math.floor((lo + hi) / 2); gets(m) ? hi = m : lo = m; }
+  const sim = simulate(cands, validos, N, cod, hi);
+  const lost = Object.keys(base.seats).filter(k => k !== cod && (base.seats[k] || 0) > (sim.seats[k] || 0));
+  return { x: hi, base, sim, lost, gained: lost.length || Object.keys(sim.seats).some(k => k !== cod && (sim.seats[k] || 0) < (base.seats[k] || 0)) };
+}
+// Fórmula directa (solo explicativa): x mínimo para que (v+x)/(s+1) supere el cociente del último concejal L = vL/kL.
+function formulaX(c, seats, last) {
+  if (!last || last.cod === c.cod) return null;
+  const need = last.v * (seats + 1);                       // (v+x)*kL > vL*(s+1)
+  let x = Math.floor(need / last.k) - c.votos + 1;
+  if ((c.votos + x - 1) * last.k === need && c.votos + x - 1 > last.v) x -= 1;   // igualdad de cocientes con más votos que L gana
+  return Math.max(x, 0);
+}
+
+return {BARRERA, umbralVotos, cumple, distribute, nextQuotient, simulate, votesNeeded, formulaX};
+})();
+const NS_store = (() => {
+// Agrupaciones ideológicas configurables, guardadas en localStorage (por navegador). La candidatura se identifica por sus siglas,
+// así la asignación se conserva al cambiar de municipio o de elección. Sin clasificación predeterminada: todo lo decide el usuario.
+const DEFAULT_GROUPS = [{ id: 'izq', name: 'Izquierdas' }, { id: 'der', name: 'Derechas' }, { id: 'na', name: 'No alineadas' }];
+const KEY = 'atlas-electoral.agrupaciones.v1';
+const safeStorage = () => { try { return globalThis.localStorage || null; } catch (e) { return null; } };
+function createStore(storage = safeStorage()) {
+  let st = { assign: {} };
+  try { const j = JSON.parse(storage?.getItem(KEY) || 'null'); if (j && typeof j.assign === 'object') st = j; } catch (e) { /* datos corruptos: se ignoran */ }
+  const save = () => { try { storage?.setItem(KEY, JSON.stringify(st)); } catch (e) { /* almacenamiento no disponible */ } };
+  return {
+    groups: () => DEFAULT_GROUPS, groupOf: s => st.assign[s] || null,
+    set(siglas, g) { g ? st.assign[siglas] = g : delete st.assign[siglas]; save(); },   // una candidatura pertenece como máximo a una agrupación
+    clear() { st = { assign: {} }; save(); },
+  };
+}
+
+return {DEFAULT_GROUPS, KEY, safeStorage, createStore};
+})();
+const NS_data = (() => {
+// Carga de datos (separada de la interfaz). Todo se lee de data/<elección>/ generado por pipeline/build_data.py
+const cache = new Map();
+const get = async url => { if (!cache.has(url)) cache.set(url, fetch(url).then(r => { if (!r.ok) throw new Error(url + ' → ' + r.status); return r.json(); })); return cache.get(url); };
+const elections = () => get('data/elections.json').then(j => j.elections);
+const index = e => get(`data/${e}/index.json`);          // [cumun, nombre, provincia, estado(2=mapa,1=pequeño,0=sin datos)]
+const validation = e => get(`data/${e}/validation.json`);
+const province = async (e, p) => { const [res, geo] = await Promise.all([get(`data/${e}/res/${p}.json`), get(`data/${e}/geo/${p}.json`)]); return { res, geo }; };
+
+return {elections, index, validation, province};
+})();
+const NS_map = (() => {
+// Visualización cartográfica con Leaflet. Solo dibuja; no calcula resultados.
+let map, layer, legend, base;
+function init(id) {
+  map = L.map(id, { zoomControl: true, preferCanvas: true }).setView([40.2, -3.7], 6);
+  base = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, opacity: .55, attribution: '© OpenStreetMap' }).addTo(map);
+  legend = L.control({ position: 'bottomleft' });
+  legend.onAdd = () => { const d = L.DomUtil.create('div', 'legend'); d.hidden = true; legend._d = d; return d; };
+  legend.addTo(map);
+}
+const toggleBase = on => on ? base.addTo(map) : map.removeLayer(base);
+function draw(features, styleFn, tipFn, popFn, onClick) {
+  if (layer) map.removeLayer(layer);
+  layer = L.geoJSON({ type: 'FeatureCollection', features }, {
+    style: f => styleFn(f.properties.id),
+    onEachFeature: (f, l) => { l.bindTooltip(() => tipFn(f.properties.id), { sticky: true }); l.bindPopup(() => popFn(f.properties.id), { maxHeight: 320, minWidth: 250 });
+      l.on('mouseover', () => l.setStyle({ weight: 2.5, color: '#111' })); l.on('mouseout', () => layer.resetStyle(l)); }
+  }).addTo(map);
+  if (features.length) map.fitBounds(layer.getBounds(), { padding: [20, 20] });
+}
+function restyle(styleFn) { if (layer) layer.setStyle(f => styleFn(f.properties.id)); }
+function clear() { if (layer) { map.removeLayer(layer); layer = null; } showLegend(null); }
+function showLegend(spec) {
+  const d = legend._d; if (!spec) { d.hidden = true; return; } d.hidden = false;
+  d.innerHTML = `<b>${spec.title}</b>` + spec.items.map(i => `<div><i style="background:${i.color}"></i>${i.label}</div>`).join('');
+}
+const resize = () => map && map.invalidateSize();
+
+return {init, toggleBase, draw, restyle, clear, showLegend, resize};
+})();
+const NS_ui = (() => {
+// Interfaz: construcción de paneles HTML. No calcula; recibe valores ya calculados.
+const { totals, pct, compare, resultRows, votesOf } = NS_calc;
+const { CATS } = NS_strength;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const n0 = v => v == null ? '—' : Math.round(v).toLocaleString('es-ES');
+const p1 = v => v == null ? '—' : v.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' %';
+const p2 = v => v == null ? '—' : v.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// Identificación legible de una sección (el código CUSEC original se conserva solo para uniones internas)
+const secLabel = id => `Distrito ${id.slice(5, 7)} - Sección ${id.slice(7, 10)}`;
+const GCOL = { izq: '#a50f15', der: '#08519c', na: '#737373' };
+const kv = rows => `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
+const TABS = [['resultados', 'Resultados'], ['resumen', 'Resumen']];   // menú lateral: solo estos dos apartados
+const tabsHtml = cur => TABS.map(([k, l]) => `<button data-tab="${k}" class="${k === cur ? 'on' : ''}">${l}</button>`).join('');
+
+function warnings(S) {
+  const m = S.muni, v = S.val, w = [];
+  if (m.diff) w.push('Los totales oficiales del municipio no coinciden con la suma de sus mesas (datos de origen). La tabla usa los oficiales; el mapa, las agregaciones y la fortaleza usan la suma de secciones.');
+  const nr = v.resultados_sin_poligono.filter(x => x.seccion.startsWith(S.cumun)), np = v.poligonos_sin_resultados_en_municipios_con_mesas.filter(x => x.seccion.startsWith(S.cumun));
+  if (nr.length) w.push(`${nr.length} sección(es) con resultados no tienen polígono en la cartografía (${nr.map(x => secLabel(x.seccion)).join('; ')}); cuentan en los totales pero no se ven en el mapa.`);
+  if (np.length) w.push(`${np.length} polígono(s) sin resultados (${np.map(x => secLabel(x.seccion)).join('; ')}) se muestran en gris.`);
+  return w.map(x => `<p class="warn">⚠ ${esc(x)}</p>`).join('');
+}
+function resumen(S) {
+  const m = S.muni, t = totals([m.t[0], m.t[1], m.t[2], m.t[3]]), nsec = Object.keys(m.s || {}).length;
+  const note = m.small ? '<p class="warn">Municipio de menos de 250 habitantes: hay una única sección y el fichero no incluye resultados por sección. Se muestran solo los indicadores de participación; sin mapa ni tabla de candidaturas.</p>' : warnings(S);
+  return `<h2>${esc(m.n)}</h2><p class="sub">${esc(S.provName)}</p>${note}
+  <h3>Información general</h3>${kv([['Población (derecho)', n0(m.pob)], ['Secciones censales', m.small ? '1' : `${nsec} con resultados`], ['Censo electoral (escrutinio)', n0(t.censo)]])}
+  <h3>Participación electoral</h3>${kv([['Votos a candidaturas', n0(t.cand)], ['Votos en blanco', n0(t.blancos)], ['<b>Votos válidos</b> (cand. + blancos)', '<b>' + n0(t.validos) + '</b>'], ['Votos nulos', n0(t.nulos)], ['<b>Total votos emitidos</b>', '<b>' + n0(t.emitidos) + '</b>'], ['<b>Participación</b>', '<b>' + p1(t.part) + '</b>']])}
+  ${m.small ? '' : `<p class="mut">Concejales a elegir: ${n0(m.t[4])}</p>`}`;
+}
+function resultados(S) {
+  const rows = resultRows(S.muni, S.cands), abs = S.tabs === 'abs';
+  return `<h2>${esc(S.muni.n)}</h2><p class="sub">${esc(S.provName)}</p><h3>Resultados por candidatura</h3><div class="seg"><button data-tm="abs" class="${abs ? 'on' : ''}">Votos</button><button data-tm="pct" class="${abs ? '' : 'on'}">% s/ válidos</button></div>
+  <table><tr><th>Siglas</th><th class="r">${abs ? 'Votos' : '%'}</th><th class="r">Conc.</th></tr>${rows.map(r => `<tr><td>${esc(r.siglas)}</td><td class="r">${abs ? n0(r.votos) : p2(r.pct)}</td><td class="r">${r.conc || '·'}</td></tr>`).join('')}
+  <tr class="tot"><td>Blancos</td><td class="r">${abs ? n0(S.muni.t[1]) : p2(pct(S.muni.t[1], S.muni.t[3] + S.muni.t[1]))}</td><td></td></tr></table>
+  <p class="mut">Totales oficiales del municipio (ficheros 05/06). Porcentaje sobre votos válidos.</p>`;
+}
+function agregacion(S) {
+  const rows = resultRows(S.muni, S.cands), sel = [...S.sel], c = compare(S.base, sel);
+  return `<p class="mut">Marca las candidaturas a sumar; el mapa «Suma» se actualiza solo.</p>
+  <div class="checks">${rows.map(r => `<label><input type="checkbox" data-cod="${r.cod}" ${S.sel.has(r.cod) ? 'checked' : ''}> ${esc(r.siglas)} <span class="mut">${n0(r.votos)}</span></label>`).join('')}</div>
+  <button class="link" data-clear>Quitar todas</button> <button class="link" data-viewmode="agregado">Ver la suma en el mapa</button>
+  <h3>Resultado conjunto</h3>${kv([['Votos agregados', '<b>' + n0(c.agg) + '</b>'], ['% sobre votos válidos', '<b>' + p2(c.pctAgg) + ' %</b>']])}
+  <div class="bar"><span style="width:${c.pctAgg || 0}%" class="a"></span><span style="width:${c.pctResto || 0}%" class="r"></span><span style="width:${c.pctBlancos || 0}%" class="b"></span></div>
+  <p class="leg"><i class="a"></i>Agregado ${p1(c.pctAgg)} <i class="r"></i>Resto ${p1(c.pctResto)} <i class="b"></i>Blancos ${p1(c.pctBlancos)}</p>
+  <p class="mut">Suma de los votos originales de las candidaturas marcadas, dividida entre los votos válidos (suma de secciones: ${n0(c.validos)}).</p>`;
+}
+function fortaleza(S, f) {
+  const cnt = f.counts, tot = Object.values(cnt).reduce((a, b) => a + b, 0);
+  return `<p class="mut">Candidatura: <b>${esc(S.cands[S.cand] || '')}</b>${S.useAgg ? ' (suma marcada)' : ''} · cámbiala en el selector superior.</p>
+  <button class="link" data-viewmode="fortaleza">Ver la fortaleza en el mapa</button>
+  <label class="chk"><input type="checkbox" id="useAgg" ${S.useAgg ? 'checked' : ''}> Aplicar a la suma marcada</label>
+  ${f.V === 0 ? '<p class="warn">La candidatura no obtiene votos en el municipio: clasificación no aplicable.</p>' : ''}
+  ${kv([['Media municipal', p2(f.V && pct(f.V, f.BV)) + (f.V ? ' %' : '')], ['Votos / válidos (suma de secciones)', `${n0(f.V)} / ${n0(f.BV)}`]])}
+  <table><tr><th>Categoría</th><th class="r">Umbral (índice)</th><th class="r">Secciones</th></tr>
+  <tr><td><i class="sw" style="background:#0b4f9c"></i>Fuerte</td><td class="r">&gt; 1,5</td><td class="r">${cnt.fuerte}</td></tr>
+  <tr><td><i class="sw" style="background:#7fb2de"></i>Medio</td><td class="r">0,5 – 1,5</td><td class="r">${cnt.medio}</td></tr>
+  <tr><td><i class="sw" style="background:#dbe9f6;border:1px solid #bbb"></i>Débil</td><td class="r">&lt; 0,5</td><td class="r">${cnt.debil}</td></tr>
+  <tr><td><i class="sw" style="background:#d9d9d9"></i>Sin clasificar / n.a.</td><td></td><td class="r">${cnt.sin + cnt.na}</td></tr></table>
+  <p class="mut">Índice = % del partido en la sección ÷ % del partido en el municipio (ambos sobre votos válidos). La media municipal es votos totales ÷ votos válidos, no la media de porcentajes de las secciones. ${tot} secciones con resultados.</p>`;
+}
+function popup(S, id, s, extra) {
+  const t = totals(s), rows = Object.entries(s[4]).sort((a, b) => b[1] - a[1]);
+  return `<div class="pop"><b>${secLabel(id)}</b>
+  ${kv([['Censo electoral', n0(t.censo)], ['Votos emitidos', n0(t.emitidos)], ['Participación', p1(t.part)], ['Votos en blanco', n0(t.blancos)], ['Votos nulos', n0(t.nulos)]])}${extra || ''}
+  <table><tr><th>Candidatura</th><th class="r">Votos</th><th class="r">%</th></tr>${rows.map(([c, v]) => `<tr><td>${esc(S.cands[c] || c)}</td><td class="r">${n0(v)}</td><td class="r">${p2(pct(v, t.validos))}</td></tr>`).join('')}</table></div>`;
+}
+const CAT_TXT = CATS;
+
+function grupos(S, store) {
+  const rows = resultRows(S.muni, S.cands), t = totals(S.base), G = store.groups();
+  const inG = g => rows.filter(r => store.groupOf(r.siglas) === g).map(r => r.cod);
+  const res = G.map(g => { const v = votesOf(S.base, inG(g.id)); return { g, n: inG(g.id).length, v, p: pct(v, t.validos) }; });
+  const rest = t.cand - res.reduce((a, r) => a + r.v, 0), col = id => GCOL[id] || '#737373';
+  return `<p class="mut">Asigna cada candidatura al grupo que prefieras; se guarda en este navegador y se recuerda en otros municipios por sus siglas. Los votos se suman y el % es sobre votos válidos (blancos incluidos).</p>
+  <div class="checks"><table class="grp"><tr><th>Candidatura</th>${G.map(g => `<th class="c">${esc(g.name)}</th>`).join('')}</tr>${rows.map(r => `<tr><td>${esc(r.siglas)} <span class="mut">${n0(r.votos)}</span></td>${G.map(g => `<td class="c"><input type="checkbox" data-sig="${esc(r.siglas)}" data-g="${g.id}" ${store.groupOf(r.siglas) === g.id ? 'checked' : ''}></td>`).join('')}</tr>`).join('')}</table></div>
+  <h3>Resultado por grupo</h3>${kv(res.map(r => [`<i class="sw" style="background:${col(r.g.id)}"></i>${esc(r.g.name)} <span class="mut">(${r.n} cand.)</span>`, `<b>${n0(r.v)}</b> · ${p2(r.p)} %`]).concat([['Sin asignar (cand.) + blancos', `${n0(rest + t.blancos)} · ${p2(pct(rest + t.blancos, t.validos))} %`]]))}
+  <div class="bar">${res.map(r => `<span style="width:${r.p || 0}%;background:${col(r.g.id)}"></span>`).join('')}</div>
+  <p class="seg">${res.map(r => `<button data-viewg="${r.g.id}">Ver ${esc(r.g.name)} en el mapa</button>`).join('')}</p>
+  <p class="mut">Suma de secciones (misma base que el mapa). Ninguna candidatura viene clasificada de antemano.</p>`;
+}
+
+// ---- Resultados: consulta + análisis territorial (Ideología, Suma, Fortaleza) en la zona inferior, con explicación didáctica
+const INFO = {
+  ideologia: `<p>Esta herramienta te permite <b>clasificar libremente las candidaturas</b> del municipio en tres grupos: <b>izquierdas</b>, <b>derechas</b> y <b>no alineadas</b>. Marca una casilla por candidatura y se suman los votos de cada grupo, que además puedes ver en el mapa.</p>
+    <p>Tú decides dónde va cada candidatura: las clasificaciones son <b>configurables por cada usuario</b> y <b>no representan una clasificación ideológica oficial</b> de la aplicación. Se guardan solo en tu navegador, así que no afectan a nadie más.</p>`,
+  suma: `<p>Te permite <b>seleccionar varias candidaturas y sumar sus votos</b> para estudiar su resultado conjunto, por ejemplo un bloque de partidos que suelen presentarse juntos.</p>
+    <p>El porcentaje se calcula dividiendo esos votos entre los <b>votos válidos del municipio</b> (candidaturas más votos en blanco). Así se evita sumar porcentajes calculados sobre bases distintas, que daría un resultado incorrecto.</p>`,
+  fortaleza: `<p>Permite identificar en <b>qué secciones censales una candidatura obtiene mejores o peores resultados</b> que su resultado medio en el municipio.</p>
+    <p><b>Índice de fortaleza</b> = porcentaje de voto de la candidatura en la sección ÷ porcentaje de voto de la candidatura en el municipio.</p>
+    <ul><li><b>Fuerte:</b> índice superior a 1,5, es decir, más del 150 % de la media municipal.</li><li><b>Medio:</b> entre 0,5 y 1,5, es decir, entre el 50 % y el 150 %.</li><li><b>Débil:</b> inferior a 0,5, es decir, menos del 50 %.</li></ul>
+    <p>Ejemplo: con un 20 % en el municipio y un 35 % en una sección, el índice es 35 ÷ 20 = 1,75: sección fuerte.</p>
+    <p>El resultado municipal se calcula como los <b>votos de la candidatura divididos entre los votos válidos del municipio</b>, no como una media aritmética de los porcentajes de las secciones.</p>`,
+};
+const TOOL_OF = m => m.startsWith('g:') ? 'ideologia' : m === 'agregado' ? 'suma' : m === 'fortaleza' ? 'fortaleza' : null;
+function tool(S, id, title, body) {
+  const open = !!S.info[id];
+  return `<section class="tool" id="tool-${id}"><div class="tool-h"><button class="tool-t" data-info="${id}" aria-expanded="${open}" title="Qué es ${title}">${title}</button><button class="ibtn" data-info="${id}" aria-expanded="${open}" aria-label="Información sobre ${title}">ⓘ</button>${TOOL_OF(S.mode) === id ? '<span class="badge">en el mapa</span>' : ''}</div><div class="info"${open ? '' : ' hidden'}>${INFO[id]}</div>${body}</section>`;
+}
+const resultadosPage = (S, store, f) => resultados(S)
+  + `<div class="tools-h"><h2>Análisis territorial</h2><p class="mut">Tres herramientas para ver en el mapa cómo se reparte el voto. Pulsa el título o el icono ⓘ para saber qué hace cada una.</p></div>`
+  + tool(S, 'ideologia', 'Ideología', grupos(S, store)) + tool(S, 'suma', 'Suma', agregacion(S)) + tool(S, 'fortaleza', 'Fortaleza', fortaleza(S, f));
+
+return {esc, n0, p1, p2, secLabel, TABS, tabsHtml, warnings, resumen, resultados, agregacion, fortaleza, popup, CAT_TXT, grupos, INFO, tool, resultadosPage};
+})();
+const NS_dhondt_view = (() => {
+// Apartado D'Hondt: construye el HTML a partir de js/dhondt.js. Datos oficiales del municipio (ficheros 05/06).
+const { distribute, simulate, votesNeeded, nextQuotient } = NS_dhondt;
+const { esc, n0, p2 } = NS_ui;
+const q1 = v => v.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const ctx = S => { const m = S.muni; return { cands: Object.entries(m.off || {}).map(([cod, [votos, conc]]) => ({ cod, votos, conc })).sort((a, b) => b.votos - a.votos), validos: m.t[3] + m.t[1], N: m.t[4] }; };
+const needed = S => { const { cands, validos, N } = ctx(S); const r = votesNeeded(cands, validos, N, S.dh.cod); return r ? r.x : 0; };
+const tieMsg = (t, S) => !t ? '' : t.sorteo ? `<p class="warn">Empate absoluto en el último concejal: ${esc(S.cands[t.a.cod])} y ${esc(S.cands[t.b.cod])} tienen el mismo cociente y los mismos votos. La ley lo resuelve por sorteo; este cálculo no puede determinarlo.</p>`
+  : `<p class="warn">Empate de cocientes en el último concejal entre ${esc(S.cands[t.a.cod])} y ${esc(S.cands[t.b.cod])}: se resuelve a favor de la candidatura con más votos.</p>`;
+
+function html(S) {
+  if (!S.muni) return '<p class="mut">Busca un municipio en el buscador superior para analizar su reparto de concejales.</p>';
+  if (S.muni.small || !S.muni.off) return `<h2>${esc(S.muni.n)}</h2><p class="warn">Municipio sin resultados por candidatura en los datos: no se puede analizar el reparto D'Hondt.</p>`;
+  const { cands, validos, N } = ctx(S), cod = cands.some(c => c.cod === S.dh.cod) ? S.dh.cod : cands[0].cod, sel = cands.find(c => c.cod === cod), sg = c => S.cands[c] || c;
+  const base = distribute(cands, validos, N), s = base.seats[cod] || 0, elig = base.eligible.some(c => c.cod === cod), extra = S.dh.extra || 0;
+  const need = votesNeeded(cands, validos, N, cod), sim = simulate(cands, validos, N, cod, extra), L = base.last, nq = elig ? nextQuotient(sel, s) : null;
+  const mismatch = cands.filter(c => (base.seats[c.cod] || 0) !== c.conc);
+  const lost = need ? need.lost.map(sg).map(esc).join(', ') : '';
+  const ans = s >= N ? `<b>${esc(sg(cod))}</b> ya tiene los ${N} concejales: no puede obtener más.`
+    : !need ? 'No es posible que esta candidatura obtenga un concejal adicional con votos adicionales.'
+    : `A <b>${esc(sg(cod))}</b> le han faltado <b>${n0(need.x)} votos</b> para conseguir un concejal más. Con esos votos habría arrebatado un concejal a <b>${lost || 'otra candidatura'}</b>.${elig ? '' : ' (Parte de una situación en la que no alcanzó la barrera del 5 %, que también tendría que superar.)'}`;
+  const gain = (sim.seats[cod] || 0) - s;
+  const simMsg = !extra ? 'Introduce votos adicionales para la candidatura seleccionada y compara el reparto.'
+    : gain > 0 ? `Con <b>${n0(extra)}</b> votos más, ${esc(sg(cod))} pasa de ${s} a <b>${s + gain}</b> concejales.`
+    : `Con ${n0(extra)} votos más ${esc(sg(cod))} <b>no</b> consigue un concejal adicional${need ? ` (faltarían ${n0(Math.max(need.x - extra, 0))} votos más)` : ''}.`;
+  const rows = cands.map(c => { const hs = sim.seats[c.cod] || 0, bs = base.seats[c.cod] || 0, d = hs - bs; return `<tr class="${c.cod === cod ? 'me' : ''}"><td>${esc(sg(c.cod))}</td><td class="r">${n0(c.votos + (c.cod === cod ? extra : 0))}</td><td class="r">${c.conc}</td><td class="r">${hs}</td><td class="r ${d > 0 ? 'up' : d < 0 ? 'dn' : ''}">${d > 0 ? '+' : ''}${d || '·'}</td></tr>`; }).join('');
+  const win = new Map(base.win.map((w, i) => [w.cod + '|' + w.k, i + 1])), K = Math.min(N, Math.max(...base.eligible.map(c => c.seats)) + 1);
+  const qrows = base.eligible.map(c => `<tr class="${c.cod === cod ? 'me' : ''}"><th>${esc(sg(c.cod))}</th><td class="r">${n0(c.votos)}</td><td class="r"><b>${c.seats}</b></td>${Array.from({ length: K }, (_, i) => { const k = i + 1, r = win.get(c.cod + '|' + k), cl = [r ? 'w' : '', L && L.cod === c.cod && L.k === k ? 'last' : '', c.cod === cod && k === s + 1 ? 'nx' : '', base.nextLoser && base.nextLoser.cod === c.cod && base.nextLoser.k === k ? 'nl' : ''].join(' ');
+      return `<td class="r ${cl}"${r ? ` title="Concejal nº ${r}"` : ''}>${q1(c.votos / k)}</td>`; }).join('')}</tr>`).join('');
+  return `<div class="dh-head"><div><h2>${esc(S.muni.n)}</h2><p class="sub">Análisis de representación · ${esc(S.provName)} · ${N} concejales · reparto D'Hondt con barrera del 5 %</p></div>
+  <label>Candidatura <select id="dhCand">${cands.map(c => `<option value="${c.cod}" ${c.cod === cod ? 'selected' : ''}>${esc(sg(c.cod))} (${n0(c.votos)})</option>`).join('')}</select></label></div>
+  ${mismatch.length ? `<p class="warn">El reparto recalculado no coincide con el oficial en: ${mismatch.map(c => `${esc(sg(c.cod))} (oficial ${c.conc}, calculado ${base.seats[c.cod] || 0})`).join('; ')}. ${base.tie ? 'Hay un empate en el último concejal (sorteo o desempate legal).' : 'Puede deberse a una resolución posterior a la proclamación; el fichero conserva el dato oficial.'}</p>` : ''}${tieMsg(base.tie, S)}
+  <div class="dh-grid"><section class="card"><h3>Candidatura</h3><p class="big">${esc(S.names?.[cod] || sg(cod))}</p>
+    <dl><dt>Siglas</dt><dd>${esc(sg(cod))}</dd><dt>Votos</dt><dd>${n0(sel.votos)}</dd><dt>% sobre votos válidos</dt><dd>${p2(sel.votos / validos * 100)} %</dd><dt>Concejales (oficial)</dt><dd><b>${sel.conc}</b></dd>
+    <dt>Cociente de su siguiente concejal</dt><dd>${nq ? `${n0(nq.v)} / ${nq.k} = <b>${q1(nq.q)}</b>` : 'no participa (&lt; 5 %)'}</dd>
+    <dt>Cociente del último concejal</dt><dd>${L ? `${esc(sg(L.cod))}: ${n0(L.v)} / ${L.k} = <b>${q1(L.v / L.k)}</b>` : '—'}</dd></dl></section>
+  <section class="card"><h3>¿Cuánto le ha faltado?</h3><p class="ans">${ans}</p><p class="mut">Se calculan los votos mínimos x para que, con x votos válidos más, la candidatura obtenga un concejal adicional: se recalcula el reparto completo (cocientes, desempate por votos y barrera del 5 % sobre el nuevo total), no solo una resta de votos entre dos candidaturas.</p></section></div>
+  <section class="card"><h3>Barrera legal del 5 %</h3><p>Umbral: <b>${n0(base.umbral)} votos</b> (5 % de ${n0(validos)} votos válidos, que incluyen blancos y excluyen nulos). Superan la barrera ${base.eligible.length} de ${cands.length} candidaturas.</p>
+    ${base.excluded.length ? `<table><tr><th>Excluida del reparto</th><th class="r">Votos</th><th class="r">%</th><th>Motivo</th></tr>${base.excluded.sort((a, b) => b.votos - a.votos).map(c => `<tr><td>${esc(sg(c.cod))}</td><td class="r">${n0(c.votos)}</td><td class="r">${p2(c.pct)}</td><td>${p2(c.pct)} % &lt; 5 % (faltan ${n0(base.umbral - c.votos)} votos)</td></tr>`).join('')}</table>` : '<p class="mut">Ninguna candidatura queda excluida.</p>'}</section>
+  <section class="card"><h3>Simulación</h3><div class="sim"><label>Votos adicionales para ${esc(sg(cod))} <input id="dhExtra" type="number" min="0" step="1" value="${extra}"></label>${need ? `<button data-act="need">Poner los necesarios (${n0(need.x)})</button>` : ''}<button data-act="reset">Restablecer</button></div>
+    <p>${simMsg}</p>${extra ? tieMsg(sim.tie, S) + (sim.excluded.length > base.excluded.length ? '<p class="mut">Con el nuevo total de votos válidos cambia la barrera del 5 % y alguna candidatura queda excluida.</p>' : '') : ''}
+    <table><tr><th>Candidatura</th><th class="r">Votos</th><th class="r">Oficial</th><th class="r">Hipotético</th><th class="r">Δ</th></tr>${rows}</table>
+    <p class="mut">«Oficial» son los concejales de los datos; «Hipotético» es la simulación (${n0(validos + extra)} votos válidos). Δ se mide contra el reparto D'Hondt recalculado.</p></section>
+  <section class="card"><h3>Tabla de cocientes</h3><div class="scroll-x"><table class="qt"><tr><th>Candidatura</th><th class="r">Votos</th><th class="r">Conc.</th>${Array.from({ length: K }, (_, i) => `<th class="r">÷${i + 1}</th>`).join('')}</tr>${qrows}</table></div>
+    <p class="leg2"><i class="w"></i>Cociente con concejal <i class="last"></i>Último concejal adjudicado <i class="nx"></i>Siguiente cociente de la candidatura seleccionada <i class="nl"></i>Primer cociente sin concejal</p></section>`;
+}
+
+return {needed, html};
+})();
+const NS_main = (() => {
+// Orquestación: estado, selección de municipio, modalidades de mapa y paneles.
+const D = NS_data; const C = NS_calc; const { classify } = NS_strength; const M = NS_map; const U = NS_ui; const { createStore } = NS_store; const H = NS_dhondt_view;
+const $ = s => document.querySelector(s);
+const BLUES = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'], GREENS = ['#edf8e9', '#bae4b3', '#74c476', '#31a354', '#006d2c'], PURPLES = ['#f2f0f7', '#cbc9e2', '#9e9ac8', '#756bb1', '#54278f'], REDS = ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15'], GREYS = ['#f7f7f7', '#d9d9d9', '#bdbdbd', '#737373', '#252525'];
+const GRAMP = { izq: REDS, der: BLUES, na: GREYS }, isG = m => m.startsWith('g:');
+const RAMP = { participacion: GREENS, votos: BLUES, pct: BLUES, agregado: PURPLES };
+const CATCOL = { fuerte: '#0b4f9c', medio: '#7fb2de', debil: '#dbe9f6', sin: '#d9d9d9', na: '#d9d9d9' };
+const S = { election: null, index: [], cumun: null, muni: null, cands: {}, base: null, geo: [], provName: '', mode: 'participacion', cand: null, sel: new Set(), tab: 'resultados', tabs: 'abs', info: {}, useAgg: false, val: null, view: null, names: {}, dh: { cod: null, extra: 0 }, page: 'mapa', store: null };
+const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const TOOL_ID = m => isG(m) ? 'ideologia' : m === 'agregado' ? 'suma' : m === 'fortaleza' ? 'fortaleza' : null;
+const groupCods = g => Object.keys(S.muni.off || {}).filter(c => S.store.groupOf(S.cands[c]) === g);
+const groupName = g => S.store.groups().find(x => x.id === g)?.name || g;
+
+function targetCods() { if (isG(S.mode)) return groupCods(S.mode.slice(2)); return S.mode === 'agregado' || (S.mode === 'fortaleza' && S.useAgg) ? [...S.sel] : [S.cand]; }
+function compute() {
+  const secs = S.muni.s, base = S.base, BV = base[3] + base[1], cods = targetCods(), V = C.votesOf(base, cods);
+  const vals = {}, counts = { fuerte: 0, medio: 0, debil: 0, sin: 0, na: 0 };
+  for (const [id, s] of Object.entries(secs)) {
+    const t = C.totals(s), vs = C.votesOf(s, cods);
+    if (S.mode === 'participacion') vals[id] = t.part;
+    else if (S.mode === 'votos') vals[id] = vs;
+    else if (S.mode === 'fortaleza') { const r = classify(vs, t.validos, V, BV); vals[id] = r; counts[r.cat]++; }
+    else vals[id] = C.pct(vs, t.validos);
+  }
+  const v = { vals, counts, V, BV, cods, label: isG(S.mode) ? groupName(S.mode.slice(2)) : cods.map(c => S.cands[c] || c).join(' + ') };
+  if (S.mode === 'fortaleza') v.legend = { title: 'Fortaleza', items: [['fuerte', 'Fuerte · índice > 1,5'], ['medio', 'Medio · 0,5 – 1,5'], ['debil', 'Débil · índice < 0,5'], ['sin', V === 0 ? 'No aplicable' : 'Sin clasificar']].map(([k, l]) => ({ color: CATCOL[k], label: l })) };
+  else {
+    const br = C.breaks(Object.values(vals)), ramp = isG(S.mode) ? GRAMP[S.mode.slice(2)] || GREYS : RAMP[S.mode], isP = S.mode !== 'votos', f = x => isP ? U.p1(x) : U.n0(x);
+    v.br = br; v.ramp = ramp;
+    const title = isG(S.mode) ? `${v.label}: % s/ válidos` : { participacion: 'Participación (%)', votos: 'Votos: ' + v.label, pct: '% s/ válidos: ' + v.label, agregado: 'Suma (% s/ válidos): ' + v.label }[S.mode];
+    v.legend = { title, items: br.length < 2 ? [] : br.slice(0, -1).map((b, i) => ({ color: ramp[Math.min(i, 4)], label: `${f(b)} – ${f(br[i + 1])}` })) };
+  }
+  return v;
+}
+const styleFn = id => {
+  const base = { weight: .6, color: '#555', fillOpacity: .78 }, v = S.view;
+  if (S.geoNr.has(id)) return { ...base, fillColor: '#bbb', fillOpacity: .3, dashArray: '3' };
+  const x = v.vals[id];
+  if (S.mode === 'fortaleza') return { ...base, fillColor: CATCOL[x.cat] };
+  return { ...base, fillColor: x == null ? '#d9d9d9' : v.ramp[Math.min(C.classIndex(x, v.br), 4)] };
+};
+const valText = id => { const x = S.view.vals[id]; if (S.mode === 'fortaleza') return U.CAT_TXT[x.cat] + (x.idx != null ? ' · índice ' + U.p2(x.idx) : ''); return x == null ? 'sin datos' : S.mode === 'votos' ? U.n0(x) + ' votos' : U.p1(x); };
+const popFn = id => {
+  const s = S.muni.s[id]; if (!s) return `<b>${U.secLabel(id)}</b><p class="warn">Sin resultados electorales para esta sección.</p>`;
+  const v = S.view, t = C.totals(s), vs = C.votesOf(s, v.cods); let extra = '';
+  if (S.mode !== 'participacion') extra = `<p class="tgt"><b>${U.esc(v.label)}</b>: ${U.n0(vs)} votos · ${U.p2(C.pct(vs, t.validos))} %`;
+  if (S.mode === 'fortaleza') { const r = v.vals[id]; extra += r.cat === 'na' ? '<br>Fortaleza: no aplicable (0 votos en el municipio)' : `<br>Media municipal: ${U.p2(C.pct(v.V, v.BV))} %<br>Índice de fortaleza: <b>${r.idx == null ? '—' : U.p2(r.idx)}</b> → <b>${U.CAT_TXT[r.cat]}</b>`; }
+  return U.popup(S, id, s, extra + (extra ? '</p>' : ''));
+};
+
+// Estadística de fortaleza independiente de la modalidad activa del mapa (el panel Fortaleza siempre está en Resultados)
+function fstats() {
+  if (!S.muni || S.muni.small) return null;
+  const BV = S.base[3] + S.base[1], cods = S.useAgg ? [...S.sel] : [S.cand], V = C.votesOf(S.base, cods), counts = { fuerte: 0, medio: 0, debil: 0, sin: 0, na: 0 };
+  for (const sec of Object.values(S.muni.s)) counts[classify(C.votesOf(sec, cods), C.totals(sec).validos, V, BV).cat]++;
+  return { V, BV, counts, cods };
+}
+function render() {
+  const p = $('#panel'), top = p.scrollTop; $('#tabs').innerHTML = U.tabsHtml(S.tab);
+  if (!S.muni) p.innerHTML = '<p class="mut">Busca un municipio para ver sus resultados.</p>';
+  else if (S.muni.small || S.tab === 'resumen') p.innerHTML = U.resumen(S);
+  else p.innerHTML = U.resultadosPage(S, S.store, fstats());
+  p.scrollTop = top;   // al repintar no se pierde la posición de desplazamiento
+}
+function refresh(redraw) {
+  if (!S.muni || S.muni.small) { render(); return; }
+  S.view = compute(); M.showLegend(S.view.legend);
+  if (redraw) M.draw(S.geo, styleFn, id => U.secLabel(id) + ' · ' + (S.geoNr.has(id) ? 'sin resultados' : valText(id)), popFn); else M.restyle(styleFn);
+  render();
+}
+async function selectMuni(cumun) { await selectMuni0(cumun); renderDh(); }
+async function selectMuni0(cumun) {
+  const e = S.index.find(x => x[0] === cumun); S.cumun = cumun; S.provName = e[2]; $('#q').value = e[1] + ' (' + e[2] + ')'; $('#results').hidden = true;
+  S.muni = null; S.geo = []; M.clear();
+  if (e[3] === 0) { S.tab = 'resumen'; $('#panel').innerHTML = `<h2>${U.esc(e[1])}</h2><p class="sub">${U.esc(e[2])}</p><p class="warn">Este municipio tiene polígono en la cartografía pero no aparece en ningún fichero de resultados.</p>`; $('#tabs').innerHTML = U.tabsHtml('resumen'); return; }
+  const { res, geo } = await D.province(S.election, cumun.slice(0, 2));
+  S.muni = res.muni[cumun]; S.cands = res.cands; S.names = res.names || {};
+  if (S.muni.small) { S.tab = 'resumen'; refresh(true); return; }
+  S.geo = geo.features.filter(f => f.properties.id.startsWith(cumun)); S.geoNr = new Set(S.geo.filter(f => f.properties.nr).map(f => f.properties.id));
+  S.base = C.sumSections(S.muni.s);
+  const rows = C.resultRows(S.muni, S.cands); S.cand = rows[0]?.cod; S.sel = new Set(S.cand ? [S.cand] : []);
+  $('#cand').innerHTML = rows.map(r => `<option value="${r.cod}">${U.esc(r.siglas)} (${U.n0(r.votos)})</option>`).join('');
+  S.dh = { cod: S.cand, extra: 0 }; S.tab = 'resultados'; refresh(true);
+}
+function search(q) {
+  const box = $('#results'), n = norm(q.trim()); if (n.length < 2) { box.hidden = true; return; }
+  const hits = S.index.filter(x => norm(x[1]).startsWith(n)).concat(S.index.filter(x => !norm(x[1]).startsWith(n) && norm(x[1]).includes(n))).slice(0, 12);
+  box.innerHTML = hits.map(x => `<li data-m="${x[0]}">${U.esc(x[1])} <span>${U.esc(x[2])}${x[3] === 1 ? ' · sin mapa (<250 hab.)' : x[3] === 0 ? ' · sin resultados' : ''}</span></li>`).join('') || '<li class="mut">Sin coincidencias</li>'; box.hidden = false;
+}
+function renderDh() { if (S.page === 'concejales') $('#dh').innerHTML = H.html(S); }
+function setPage(p) { S.page = p; $('main').hidden = p !== 'mapa'; $('#dh').hidden = p !== 'concejales'; document.body.dataset.view = p; if (p === 'mapa') { M.resize(); if (S.muni && !S.muni.small) refresh(true); } else renderDh(); }
+async function loadElection(id) {
+  S.election = id; S.index = await D.index(id); S.val = await D.validation(id); S.muni = null; S.cumun = null; M.clear(); render();
+}
+async function init() {
+  document.querySelector('.ver').textContent = 'v3';   // marca visible: confirma que se ha cargado el JavaScript nuevo
+  if (location.protocol === 'file:') $('#panel').innerHTML = '<p class="warn">Abre la aplicación desde un servidor local: <code>python3 -m http.server</code> y visita http://localhost:8000</p>';
+  S.store = createStore(); M.init('map'); const els = await D.elections(); $('#elec').innerHTML = els.map(e => `<option value="${e.id}">${e.label}</option>`).join('');
+  $('#elec').onchange = e => loadElection(e.target.value); await loadElection(els[0].id);
+  $('#q').oninput = e => search(e.target.value);
+  $('#q').onkeydown = e => { if (e.key === 'Enter') { const li = $('#results li[data-m]'); if (li) selectMuni(li.dataset.m); } };
+  $('#results').onclick = e => { const li = e.target.closest('li[data-m]'); if (li) selectMuni(li.dataset.m); };
+  $('#mode').onchange = e => { S.mode = e.target.value; S.tab = S.mode === 'participacion' ? 'resumen' : 'resultados'; refresh(false); const t = TOOL_ID(S.mode); if (t) $('#tool-' + t)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }); else $('#panel').scrollTop = 0; };
+  $('#cand').onchange = e => { S.cand = e.target.value; refresh(false); };
+  $('#base').onchange = e => M.toggleBase(e.target.checked);
+  $('#tabs').onclick = e => { const b = e.target.closest('[data-tab]'); if (b) { S.tab = b.dataset.tab; render(); $('#panel').scrollTop = 0; } };
+  $('#panel').onclick = e => { const b = e.target.closest('[data-tm]'); if (b) { S.tabs = b.dataset.tm; render(); } if (e.target.matches('[data-clear]')) { S.sel.clear(); refresh(false); } const inf = e.target.closest('[data-info]'); if (inf) { S.info[inf.dataset.info] = !S.info[inf.dataset.info]; render(); } const vm = e.target.closest('[data-viewmode]'); if (vm) { S.mode = vm.dataset.viewmode; $('#mode').value = S.mode; refresh(false); } const g = e.target.closest('[data-viewg]'); if (g) { S.mode = 'g:' + g.dataset.viewg; $('#mode').value = S.mode; refresh(false); } };
+  $('#panel').onchange = e => {
+    if (e.target.dataset.cod) { e.target.checked ? S.sel.add(e.target.dataset.cod) : S.sel.delete(e.target.dataset.cod); S.mode = 'agregado'; $('#mode').value = 'agregado'; refresh(false); }
+    if (e.target.dataset.sig) { S.store.set(e.target.dataset.sig, e.target.checked ? e.target.dataset.g : null); isG(S.mode) ? refresh(false) : render(); }
+    if (e.target.id === 'useAgg') { S.useAgg = e.target.checked; refresh(false); }
+  };
+  document.querySelector('.main-nav').onclick = e => { const b = e.target.closest('[data-view]'); if (b) setPage(b.dataset.view); };
+  $('#dh').onchange = e => { if (e.target.id === 'dhCand') { S.dh.cod = e.target.value; S.dh.extra = 0; } if (e.target.id === 'dhExtra') S.dh.extra = Math.max(0, Math.floor(+e.target.value || 0)); renderDh(); };
+  $('#dh').onclick = e => { const b = e.target.closest('[data-act]'); if (!b) return; S.dh.extra = b.dataset.act === 'need' ? H.needed(S) : 0; renderDh(); };
+  window.addEventListener('resize', M.resize);
+}
+init().catch(err => { $('#panel').innerHTML = `<p class="warn">No se pudieron cargar los datos: ${U.esc(err.message)}. Ejecuta pipeline/build_data.py y sirve la carpeta con un servidor local.</p>`; });
+
+return {};
+})();
+</script>
 </body></html>

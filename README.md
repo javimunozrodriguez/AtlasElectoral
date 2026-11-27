@@ -80,3 +80,9 @@ Comparación de partidos y de elecciones, evolución por sección, exportación 
 2. Recarga sin caché (Ctrl+Shift+R, o Cmd+Shift+R en Mac). GitHub Pages cachea unos minutos.
 3. Comprueba que en el repositorio están **todas** las carpetas: `js/`, `css/`, `data/`, `config/`, `pipeline/` y `index.html` en la raíz, no dentro de una subcarpeta `app/`.
 4. En la pestaña Actions del repositorio, el último despliegue («pages build and deployment») debe estar en verde.
+
+## Publicar subiendo un solo archivo (recomendado si no puedes subir carpetas)
+```
+python3 pipeline/build_single.py --out dist/index.html
+```
+`dist/index.html` lleva todo el código (CSS y JavaScript) dentro; los datos se siguen leyendo de `data/`. En GitHub Pages basta con sustituir el `index.html` de la raíz por este archivo (y mantener la carpeta `data/`). Las carpetas `js/` y `css/` dejan de usarse en el sitio publicado, pero siguen siendo el código fuente editable. Si algo falla en el navegador, aparece un aviso amarillo con el detalle técnico.
