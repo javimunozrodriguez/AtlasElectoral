@@ -30,8 +30,8 @@ details{margin:6px 0}summary{cursor:pointer}.scroll{max-height:160px;overflow:au
 
 /* --- navegación principal, agrupaciones y D'Hondt --- */
 .main-nav{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.main-nav button{border:0;background:none;padding:6px 14px;font:inherit;color:var(--mut);cursor:pointer}
-body[data-view=mapa] .main-nav [data-view=mapa],body[data-view=dhondt] .main-nav [data-view=dhondt]{background:var(--acc);color:#fff}
-body[data-view=dhondt] #mode,body[data-view=dhondt] #cand,body[data-view=dhondt] .chk{display:none}
+body[data-view=mapa] .main-nav [data-view=mapa],body[data-view=concejales] .main-nav [data-view=concejales]{background:var(--acc);color:#fff}
+body[data-view=concejales] #mode,body[data-view=concejales] #cand,body[data-view=concejales] .chk{display:none}
 .grp th.c,.grp td.c{text-align:center;font-size:11px;width:68px}.grp td.c{padding:3px 0}.seg button{padding:5px 10px}p.seg{display:flex;flex-wrap:wrap;gap:6px;border:0}p.seg button{border:1px solid var(--line);border-radius:8px;background:none;color:var(--ink);cursor:pointer;font:inherit}
 #dh{flex:1;overflow:auto;padding:18px 22px;max-width:1180px;width:100%;margin:0 auto}#dh[hidden]{display:none}main[hidden]{display:none}
 .dh-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px}.dh-head label{display:flex;gap:8px;align-items:center;color:var(--mut)}
@@ -44,3 +44,11 @@ tr.me td,tr.me th{background:color-mix(in srgb,var(--acc) 10%,transparent)}.up{c
 .qt td.last{outline:2px solid #2e7d32;outline-offset:-2px}.qt td.nx{outline:2px dashed #c0392b;outline-offset:-2px}.qt td.nl{background:color-mix(in srgb,#d6a021 28%,transparent)}
 .leg2 i{display:inline-block;width:14px;height:12px;margin:0 5px 0 12px;vertical-align:-2px;border-radius:2px}.leg2 .w{background:color-mix(in srgb,#2e9e4f 45%,transparent)}.leg2 .last{outline:2px solid #2e7d32}.leg2 .nx{outline:2px dashed #c0392b}.leg2 .nl{background:color-mix(in srgb,#d6a021 45%,transparent)}
 @media (max-width:900px){.dh-grid{grid-template-columns:1fr}#dh{padding:12px}}
+
+/* --- Resultados: zona de análisis territorial con explicaciones --- */
+.tools-h{margin-top:26px;padding-top:16px;border-top:2px solid var(--line)}.tools-h h2{font-size:15px}
+.tool{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:12px 0}.tool-h{display:flex;align-items:center;gap:8px}
+.tool-t{border:0;background:none;font:inherit;font-weight:700;font-size:15px;color:var(--ink);cursor:pointer;padding:2px 0;text-decoration:underline dotted var(--mut);text-underline-offset:4px}
+.ibtn{border:1px solid var(--line);background:none;color:var(--acc);border-radius:50%;width:24px;height:24px;line-height:20px;padding:0;cursor:pointer;font-size:14px}
+.badge{margin-left:auto;font-size:11px;background:var(--acc);color:#fff;border-radius:10px;padding:2px 8px}
+.info{background:var(--bg);border-left:3px solid var(--acc);border-radius:8px;padding:6px 12px;margin:8px 0;font-size:13px}.info[hidden]{display:none}.info p{margin:6px 0}.info ul{margin:6px 0;padding-left:18px}

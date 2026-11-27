@@ -9,6 +9,8 @@ globalThis.fetch = async u => { raw.push(u); const url = new URL(u, location.hre
 globalThis.document = { querySelector: s => el(s), getElementById: s => el('#' + s), body: { dataset: {} } }; globalThis.window = { addEventListener() {} };
 globalThis.L = { map: () => ({ setView() { return this; }, fitBounds() {}, removeLayer() {}, invalidateSize() {} }), tileLayer: () => ({ addTo() { return this; } }), control: () => ({ addTo() { this.onAdd(); return this; } }), DomUtil: { create: () => rec.legend },
   geoJSON: (fc, o) => { const ls = fc.features.map(f => { const l = { f, bindTooltip(fn) { this.tip = fn; }, bindPopup(fn) { this.pop = fn; }, on() {}, setStyle() {} }; o.onEachFeature(f, l); l.style = o.style(f); return l; }); rec.layers = ls; return { addTo() { return this; }, getBounds() {}, resetStyle() {}, setStyle(fn) { ls.forEach(l => l.style = fn(l.f)); } }; } };
+{ const pn = el('#panel'); let h = ''; Object.defineProperty(pn, 'innerHTML', { get: () => h, set: v => { h = v; pn.scrollTop = 0; } }); }
+const chSig = (sig, g, checked = true) => els['#panel'].onchange({ target: { dataset: { sig, g }, checked, id: '' } });
 const tick = (ms = 500) => new Promise(r => setTimeout(r, ms)), pick = m => { els['#results'].onclick({ target: { closest: () => ({ dataset: { m } }) } }); return tick(); };
 const tab = t => els['#tabs'].onclick({ target: { closest: () => ({ dataset: { tab: t } }) } }), page = v => els['.main-nav'].onclick({ target: { closest: () => ({ dataset: { view: v } }) } });
 const n0 = v => Math.round(v).toLocaleString('es-ES'), p2 = v => v.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -26,13 +28,38 @@ assert.ok(!/Población/i.test(pop) && pop.includes('Censo electoral'), 'sin pobl
 const sec = bur.s[id0], emit = sec[1] + sec[2] + sec[3]; assert.ok(pop.includes(p2(emit / sec[0] * 100).replace(/\.00$/, '')) || pop.includes((emit / sec[0] * 100).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 })), 'participación = votantes/censo');
 console.log('OK participación por defecto |', tip, '| popup sin Población');
 
+// ===== Reorganización de la interfaz =====
+const idx = fs.readFileSync('index.html', 'utf8');
+assert.deepEqual([...idx.match(/<nav class="main-nav">([\s\S]*?)<\/nav>/)[1].matchAll(/>([^<]+)<\/button>/g)].map(m => m[1]), ['Mapa', 'Concejales'], 'navegación principal');
+assert.ok(!/alidaci/.test(idx) && !/alidaci/.test(fs.readFileSync('js/ui.js', 'utf8')) && !/D'Hondt<\/button>/.test(idx), 'sin Validación ni «D\'Hondt» en la navegación');
+assert.ok(/<option value="agregado">Suma<\/option>/.test(idx) && /<option value="fortaleza">Fortaleza<\/option>/.test(idx) && /label="Ideología/.test(idx), 'selector de mapa renombrado');
+assert.deepEqual([...els['#tabs'].innerHTML.matchAll(/data-tab="\w+"[^>]*>([^<]+)</g)].map(m => m[1]), ['Resultados', 'Resumen'], 'menú lateral: solo Resultados y Resumen, en ese orden');
+let rp = els['#panel'].innerHTML; const pos = k => rp.indexOf(k);
+assert.ok(pos('Resultados por candidatura') > 0 && pos('Resultados por candidatura') < pos('id="tool-ideologia"') && pos('id="tool-ideologia"') < pos('id="tool-suma"') && pos('id="tool-suma"') < pos('id="tool-fortaleza"'), 'herramientas en la zona inferior de Resultados, en orden');
+assert.ok(rp.includes('>Ideología<') && rp.includes('>Suma<') && rp.includes('>Fortaleza<') && !/Agregación|>Agrupaciones</.test(rp), 'nombres nuevos');
+const tool = id => els['#panel'].innerHTML.match(new RegExp(`<section class="tool" id="tool-${id}">([\\s\\S]*?)</section>`))[1];
+const info = id => els['#panel'].onclick({ target: { closest: s => s === '[data-info]' ? { dataset: { info: id } } : null, matches: () => false } });
+const checkInfo = (id, ...txt) => { assert.ok(/<div class="info" hidden>/.test(tool(id)), id + ': explicación oculta al inicio'); info(id); assert.ok(!/<div class="info" hidden>/.test(tool(id)), id + ': se muestra al pulsar'); for (const t of txt) assert.ok(tool(id).includes(t), id + ' explica: ' + t); info(id); assert.ok(/<div class="info" hidden>/.test(tool(id)), id + ': se oculta al volver a pulsar'); };
+checkInfo('ideologia', 'izquierdas', 'derechas', 'no alineadas', 'configurables por cada usuario', 'no representan una clasificación ideológica oficial');
+checkInfo('suma', 'sumar sus votos', 'votos válidos del municipio', 'sumar porcentajes calculados sobre bases distintas');
+checkInfo('fortaleza', 'Índice de fortaleza', 'porcentaje de voto de la candidatura en la sección', 'superior a 1,5', '150 %', 'entre 0,5 y 1,5', 'inferior a 0,5', 'no como una media aritmética de los porcentajes de las secciones');
+assert.ok(tool('fortaleza').includes('<td class="r">143</td>'), 'Fortaleza calcula sus cifras aunque el mapa muestre otra variable (PSOE: 143 secciones medias)');
+els['#panel'].scrollTop = 777; chSig('PSOE', 'izq'); assert.equal(els['#panel'].scrollTop, 777, 'el repintado conserva el desplazamiento');
+els['#mode'].onchange({ target: { value: 'fortaleza' } }); assert.ok(tool('fortaleza').includes('en el mapa') && /Resultados por candidatura/.test(els['#panel'].innerHTML), 'al elegir una herramienta se queda en Resultados');
+els['#mode'].onchange({ target: { value: 'participacion' } }); assert.ok(els['#panel'].innerHTML.includes('Participación electoral') && els['#panel'].innerHTML.includes('Información general'), 'Resumen sigue mostrando participación');
+els['#tabs'].onclick({ target: { closest: () => ({ dataset: { tab: 'resultados' } }) } });
+await pick('03014'); els['#tabs'].onclick({ target: { closest: () => ({ dataset: { tab: 'resumen' } }) } });
+assert.ok(els['#panel'].innerHTML.includes('se muestran en gris') && /Distrito \d\d - Sección \d{3}/.test(els['#panel'].innerHTML), 'los avisos internos de comprobación de datos siguen funcionando');
+await pick('09059'); els['#mode'].onchange({ target: { value: 'participacion' } });
+console.log('OK reorganización: menú [Resultados, Resumen], sin Validación, herramientas abajo con explicaciones, Concejales en la navegación principal');
+
 // 1) agrupaciones
-tab('grupos'); assert.ok(els['#panel'].innerHTML.includes('data-sig="PSOE"'));
+tab('resultados'); assert.ok(els['#panel'].innerHTML.includes('data-sig="PSOE"'));
 const ch = (sig, g, checked = true) => els['#panel'].onchange({ target: { dataset: { sig, g }, checked, id: '' } });
 ch('PSOE', 'izq'); ch('PODEMOS-IU-AV', 'izq'); ch('PP', 'der'); ch('VOX', 'der');
 els['#mode'].onchange({ target: { value: 'g:izq' } }); assert.ok(rec.legend.innerHTML.includes('Izquierdas'));
 const izq = [cod('PSOE'), cod('PODEMOS-IU-AV')], validos = bur.t[3] + bur.t[1], vIzq = izq.reduce((a, c) => a + bur.off[c][0], 0);
-tab('grupos'); assert.ok(els['#panel'].innerHTML.includes(n0(vIzq)) && els['#panel'].innerHTML.includes(p2(vIzq / validos * 100)), 'agrupación = suma de votos / válidos (con blancos)');
+tab('resultados'); assert.ok(els['#panel'].innerHTML.includes(n0(vIzq)) && els['#panel'].innerHTML.includes(p2(vIzq / validos * 100)), 'agrupación = suma de votos / válidos (con blancos)');
 const s1 = bur.s[id0], pp1 = L0.pop(); assert.ok(pp1.includes(n0(izq.reduce((a, c) => a + (s1[4][c] || 0), 0))), 'agregado por sección');
 ch('PP', 'izq');   // mover PP a otra agrupación: exclusividad (una candidatura, una agrupación)
 assert.ok(els['#panel'].innerHTML.includes('data-sig="PP" data-g="izq" checked') && !els['#panel'].innerHTML.includes('data-sig="PP" data-g="der" checked'));
@@ -41,13 +68,13 @@ ch('PP', 'der'); console.log('OK agrupaciones |', `izq=${n0(vIzq)} votos (${p2(v
 // 2b) persistencia por navegador y entre municipios
 const saved = JSON.parse(localStorage._m.get(KEY)); assert.equal(saved.assign.PSOE, 'izq'); assert.equal(saved.assign.PP, 'der');
 assert.equal(createStore(localStorage).groupOf('PSOE'), 'izq', 'sobrevive a recargar'); assert.equal(createStore(mkLS()).groupOf('PSOE'), null, 'otro navegador: independiente');
-await pick('28079'); tab('grupos'); assert.ok(els['#panel'].innerHTML.includes('data-sig="PSOE" data-g="izq" checked'), 'se conserva en otro municipio');
+await pick('28079'); tab('resultados'); assert.ok(els['#panel'].innerHTML.includes('data-sig="PSOE" data-g="izq" checked'), 'se conserva en otro municipio');
 await pick('09059'); console.log('OK persistencia: localStorage por navegador y por siglas');
 
 // 5) D'Hondt: independiente del módulo (implementación ingenua)
 // Implementación ingenua con enteros exactos. `against`: en empates absolutos (mismo cociente y votos) se desfavorece a esa candidatura.
 const naive = (votes, V, N, against) => { const e = Object.entries(votes).filter(([, v]) => v * 100 >= 5 * V && v > 0), s = Object.fromEntries(e.map(([c]) => [c, 0])); for (let i = 0; i < N; i++) { let b = null; for (const [c, v] of e) { const d = b ? v * (s[b.c] + 1) - b.v * (s[c] + 1) : 1; if (!b || d > 0 || (d === 0 && (v > b.v || (v === b.v && b.c === against)))) b = { c, v }; } s[b.c]++; } return s; };
-page('dhondt'); const dh = els['#dh'].innerHTML; assert.ok(dh.includes('Barrera legal del 5 %') && dh.includes('Tabla de cocientes') && dh.includes('Simulación') && dh.includes('Burgos'));
+page('concejales'); const dh = els['#dh'].innerHTML; assert.ok(dh.includes('Barrera legal del 5 %') && dh.includes('Tabla de cocientes') && dh.includes('Simulación') && dh.includes('Burgos'));
 const votes = Object.fromEntries(Object.entries(bur.off).map(([c, [v]]) => [c, v])), N = bur.t[4], base = naive(votes, validos, N);
 for (const [c, [, conc]] of Object.entries(bur.off)) assert.equal(base[c] || 0, conc, 'reparto = oficial: ' + res09.cands[c]);
 console.log('OK reparto D\'Hondt Burgos = oficial:', Object.entries(base).map(([c, s]) => res09.cands[c] + ' ' + s).join(', '));

@@ -42,12 +42,18 @@ Regenera `data/` y `validation.json` (visible en la pestaña Validación). La ap
 Sube la carpeta completa (incluida `data/`, ~58 MB) a un repositorio y activa Pages sobre la rama/carpeta raíz. Todas las rutas son relativas, así que funciona también bajo `https://usuario.github.io/repositorio/`. No hay backend: las agrupaciones se guardan en el `localStorage` de cada navegador.
 
 ## Novedades (v2)
-- **Agrupaciones** (Izquierdas, Derechas, No alineadas): pestaña «Agrupaciones» con casillas por candidatura; sin clasificación previa; una candidatura pertenece a una sola agrupación; modalidades de mapa propias.
+- **Agrupaciones** (Izquierdas, Derechas, No alineadas): herramienta «Ideología» con casillas por candidatura; sin clasificación previa; una candidatura pertenece a una sola agrupación; modalidades de mapa propias.
 - **Participación** = (blancos + nulos + candidaturas) / censo de escrutinio: es la variable por defecto del mapa.
 - Se elimina la población de las secciones (el municipio conserva su población de derecho).
 - Secciones identificadas como «Distrito XX - Sección XXX» (el CUSEC sigue siendo la clave interna).
 - **D'Hondt**: reparto con barrera del 5 % (≥ 5 % de votos válidos, blancos incluidos y nulos excluidos), votos necesarios para un concejal más, simulación y tabla de cocientes. Desempate: más votos; si también empatan, sorteo (se advierte).
 - Tras actualizar a esta versión hay que regenerar `data/` (se añade el nombre completo de las candidaturas).
+
+## Organización de la interfaz (v3)
+- **Navegación principal (cabecera):** Mapa | Concejales. Concejales es el antiguo apartado D'Hondt (misma funcionalidad). Para añadir otra sección principal basta un botón `data-view` en `index.html`, su contenedor y un caso en `setPage()` de `js/main.js`.
+- **Menú lateral:** solo Resultados y Resumen (`TABS` en `js/ui.js`).
+- **Resultados:** tabla de resultados arriba y, más abajo, el análisis territorial: **Ideología** (antes Agrupaciones), **Suma** (antes Agregación) y **Fortaleza**. Cada una tiene una explicación didáctica al pulsar su título o el icono ⓘ (`INFO` en `js/ui.js`).
+- **Validación:** se retira el apartado visible. `validation.json` se sigue generando y cargando porque alimenta los avisos de cada municipio (secciones sin polígono, etc.).
 
 ## Pruebas
 ```

@@ -6,13 +6,13 @@
 <body data-view="mapa">
 <header>
   <div class="brand">Atlas electoral</div>
-  <nav class="main-nav"><button data-view="mapa">Mapa</button><button data-view="dhondt">D'Hondt</button></nav>
+  <nav class="main-nav"><button data-view="mapa">Mapa</button><button data-view="concejales">Concejales</button></nav>
   <select id="elec" title="Elección"></select>
   <div class="search"><input id="q" type="search" placeholder="Buscar municipio…" autocomplete="off"><ul id="results" hidden></ul></div>
   <select id="mode" title="Modalidad de mapa">
     <option value="participacion">Participación</option><option value="votos">Votos de una candidatura</option>
-    <option value="pct">% de voto de una candidatura</option><option value="agregado">Resultado agregado</option><option value="fortaleza">Fortaleza territorial</option>
-    <optgroup label="Agrupaciones (las defines tú)"><option value="g:izq">Izquierdas</option><option value="g:der">Derechas</option><option value="g:na">No alineadas</option></optgroup>
+    <option value="pct">% de voto de una candidatura</option><option value="agregado">Suma</option><option value="fortaleza">Fortaleza</option>
+    <optgroup label="Ideología (los grupos los defines tú)"><option value="g:izq">Izquierdas</option><option value="g:der">Derechas</option><option value="g:na">No alineadas</option></optgroup>
   </select>
   <select id="cand" title="Candidatura"></select>
   <label class="chk"><input type="checkbox" id="base" checked> Mapa base</label>
