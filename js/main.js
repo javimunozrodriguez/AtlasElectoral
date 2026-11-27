@@ -1,5 +1,5 @@
 // Orquestación: estado, selección de municipio, modalidades de mapa y paneles.
-import * as D from './data.js'; import * as C from './calc.js'; import { classify } from './strength.js'; import * as M from './map.js'; import * as U from './ui.js'; import { createStore } from './store.js'; import * as H from './dhondt_view.js';
+import * as D from './data.js?v=3'; import * as C from './calc.js?v=3'; import { classify } from './strength.js?v=3'; import * as M from './map.js?v=3'; import * as U from './ui.js?v=3'; import { createStore } from './store.js?v=3'; import * as H from './dhondt_view.js?v=3';
 const $ = s => document.querySelector(s);
 const BLUES = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'], GREENS = ['#edf8e9', '#bae4b3', '#74c476', '#31a354', '#006d2c'], PURPLES = ['#f2f0f7', '#cbc9e2', '#9e9ac8', '#756bb1', '#54278f'], REDS = ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15'], GREYS = ['#f7f7f7', '#d9d9d9', '#bdbdbd', '#737373', '#252525'];
 const GRAMP = { izq: REDS, der: BLUES, na: GREYS }, isG = m => m.startsWith('g:');
@@ -93,6 +93,7 @@ async function loadElection(id) {
   S.election = id; S.index = await D.index(id); S.val = await D.validation(id); S.muni = null; S.cumun = null; M.clear(); render();
 }
 async function init() {
+  document.querySelector('.ver').textContent = 'v3';   // marca visible: confirma que se ha cargado el JavaScript nuevo
   if (location.protocol === 'file:') $('#panel').innerHTML = '<p class="warn">Abre la aplicación desde un servidor local: <code>python3 -m http.server</code> y visita http://localhost:8000</p>';
   S.store = createStore(); M.init('map'); const els = await D.elections(); $('#elec').innerHTML = els.map(e => `<option value="${e.id}">${e.label}</option>`).join('');
   $('#elec').onchange = e => loadElection(e.target.value); await loadElection(els[0].id);

@@ -52,3 +52,4 @@ tr.me td,tr.me th{background:color-mix(in srgb,var(--acc) 10%,transparent)}.up{c
 .ibtn{border:1px solid var(--line);background:none;color:var(--acc);border-radius:50%;width:24px;height:24px;line-height:20px;padding:0;cursor:pointer;font-size:14px}
 .badge{margin-left:auto;font-size:11px;background:var(--acc);color:#fff;border-radius:10px;padding:2px 8px}
 .info{background:var(--bg);border-left:3px solid var(--acc);border-radius:8px;padding:6px 12px;margin:8px 0;font-size:13px}.info[hidden]{display:none}.info p{margin:6px 0}.info ul{margin:6px 0;padding-left:18px}
+.ver{font-weight:400;font-size:11px;color:var(--mut);margin-left:4px}

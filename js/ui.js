@@ -1,6 +1,6 @@
 // Interfaz: construcción de paneles HTML. No calcula; recibe valores ya calculados.
-import { totals, pct, compare, resultRows, votesOf } from './calc.js';
-import { CATS } from './strength.js';
+import { totals, pct, compare, resultRows, votesOf } from './calc.js?v=3';
+import { CATS } from './strength.js?v=3';
 export const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 export const n0 = v => v == null ? '—' : Math.round(v).toLocaleString('es-ES');
 export const p1 = v => v == null ? '—' : v.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' %';

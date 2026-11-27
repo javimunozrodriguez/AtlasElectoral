@@ -74,3 +74,9 @@ python3 tests/verify_data.py <carpeta DAT> data/municipales-2023
 
 ## Pendiente (arquitectura preparada)
 Comparación de partidos y de elecciones, evolución por sección, exportación CSV/Excel/PNG/GeoJSON y la carga de ficheros brutos desde el navegador (hoy se hace con el pipeline).
+
+## Si en GitHub Pages no ves los cambios
+1. Junto al título debe verse **«v3»**. Si no aparece, el navegador (o el repositorio) tiene JavaScript antiguo.
+2. Recarga sin caché (Ctrl+Shift+R, o Cmd+Shift+R en Mac). GitHub Pages cachea unos minutos.
+3. Comprueba que en el repositorio están **todas** las carpetas: `js/`, `css/`, `data/`, `config/`, `pipeline/` y `index.html` en la raíz, no dentro de una subcarpeta `app/`.
+4. En la pestaña Actions del repositorio, el último despliegue («pages build and deployment») debe estar en verde.

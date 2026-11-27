@@ -25,9 +25,9 @@ mods = {}
 for n in ['calc', 'strength', 'dhondt', 'store', 'ui', 'dhondt_view', 'main']: mods[n] = open(f'js/{n}.js').read()
 def wrap(name, src):
     names = re.findall(r'^export (?:const|function) (\w+)', src, re.M) + [x for m in re.findall(r'^export \{([^}]*)\}', src, re.M) for x in m.split(',')]
-    src = re.sub(r"^import \* as (\w+) from '\./(\w+)\.js';?", lambda m: f'const {m.group(1)} = NS_{m.group(2)};', src, flags=re.M)
-    src = re.sub(r"import \* as (\w+) from '\./(\w+)\.js';", lambda m: f'const {m.group(1)} = NS_{m.group(2)};', src)
-    src = re.sub(r"import \{([^}]*)\} from '\./(\w+)\.js';", lambda m: f'const {{{m.group(1)}}} = NS_{m.group(2)};', src)
+    src = re.sub(r"^import \* as (\w+) from '\./(\w+)\.js(?:\?v=\w+)?';?", lambda m: f'const {m.group(1)} = NS_{m.group(2)};', src, flags=re.M)
+    src = re.sub(r"import \* as (\w+) from '\./(\w+)\.js(?:\?v=\w+)?';", lambda m: f'const {m.group(1)} = NS_{m.group(2)};', src)
+    src = re.sub(r"import \{([^}]*)\} from '\./(\w+)\.js(?:\?v=\w+)?';", lambda m: f'const {{{m.group(1)}}} = NS_{m.group(2)};', src)
     src = re.sub(r'^export ', '', src, flags=re.M)
     return f'const NS_{name} = (() => {{\n{src}\nreturn {{{", ".join(n.strip() for n in names)}}};\n}})();\n'
 data_js = '''const NS_data = (() => { const DB = window.__DB; const cache = {};
@@ -72,7 +72,7 @@ dark = re.search(r':root:not\(\[data-theme="light"\]\)\{([^}]*)\}', css).group(1
 css += f':root[data-theme="dark"]{{{dark}}}:root{{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}}\n.tip{{position:absolute;pointer-events:none;background:#111c;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px;z-index:5;white-space:nowrap}}\n.pp{{position:absolute;right:12px;top:12px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;max-height:80%;overflow:auto;box-shadow:0 6px 24px #0004;z-index:6;max-width:300px}}.pp .x{{float:right;border:0;background:none;font-size:20px;cursor:pointer;color:var(--mut)}}\n.zb{{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:4px;z-index:4}}.zb button{{width:32px;height:32px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;font-size:18px;cursor:pointer}}\n#base,label[for=base]{{display:none}}.chk:has(#base){{display:none}}\n'
 db = {'eid': a.eid, 'label': 'Municipales 2023', 'index': index, 'val': val, 'blobs': blobs}
 html = f'''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Atlas electoral municipal · Municipales 2023</title><style>{css}</style></head><body data-view="mapa">
-<header><div class="brand">Atlas electoral</div><nav class="main-nav"><button data-view="mapa">Mapa</button><button data-view="concejales">Concejales</button></nav><select id="elec" hidden></select><div class="search"><input id="q" type="search" placeholder="Buscar municipio…" autocomplete="off"><ul id="results" hidden></ul></div>
+<header><div class="brand">Atlas electoral <small class="ver"></small></div><nav class="main-nav"><button data-view="mapa">Mapa</button><button data-view="concejales">Concejales</button></nav><select id="elec" hidden></select><div class="search"><input id="q" type="search" placeholder="Buscar municipio…" autocomplete="off"><ul id="results" hidden></ul></div>
 <select id="mode"><option value="participacion">Participación</option><option value="votos">Votos de una candidatura</option><option value="pct">% de voto de una candidatura</option><option value="agregado">Suma</option><option value="fortaleza">Fortaleza</option><optgroup label="Ideología"><option value="g:izq">Izquierdas</option><option value="g:der">Derechas</option><option value="g:na">No alineadas</option></optgroup></select><select id="cand"></select><label class="chk"><input type="checkbox" id="base" checked></label></header>
 <main><div id="map"></div><aside><nav id="tabs"></nav><div id="panel"></div></aside></main><section id="dh" hidden></section>
 <script>window.__DB={json.dumps(db, ensure_ascii=False, separators=(',', ':'))};</script><script>{js}</script></body></html>'''
