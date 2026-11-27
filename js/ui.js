@@ -1,6 +1,6 @@
 // Interfaz: construcción de paneles HTML. No calcula; recibe valores ya calculados.
-import { totals, pct, compare, resultRows, votesOf } from './calc.js?v=3';
-import { CATS } from './strength.js?v=3';
+import { totals, pct, compare, resultRows, votesOf } from './calc.js?v=4';
+import { CATS } from './strength.js?v=4';
 export const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 export const n0 = v => v == null ? '—' : Math.round(v).toLocaleString('es-ES');
 export const p1 = v => v == null ? '—' : v.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' %';
@@ -9,7 +9,7 @@ export const p2 = v => v == null ? '—' : v.toLocaleString('es-ES', { minimumFr
 export const secLabel = id => `Distrito ${id.slice(5, 7)} - Sección ${id.slice(7, 10)}`;
 const GCOL = { izq: '#a50f15', der: '#08519c', na: '#737373' };
 const kv = rows => `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
-export const TABS = [['resultados', 'Resultados'], ['resumen', 'Resumen']];   // menú lateral: solo estos dos apartados
+export const TABS = [['resultados', 'Resultados'], ['resumen', 'Resumen'], ['cruce', 'Cruce']];   // menú lateral
 export const tabsHtml = cur => TABS.map(([k, l]) => `<button data-tab="${k}" class="${k === cur ? 'on' : ''}">${l}</button>`).join('');
 
 export function warnings(S) {
@@ -37,27 +37,27 @@ export function resultados(S) {
 }
 export function agregacion(S) {
   const rows = resultRows(S.muni, S.cands), sel = [...S.sel], c = compare(S.base, sel);
-  return `<p class="mut">Marca las candidaturas a sumar; el mapa «Suma» se actualiza solo.</p>
+  return `<div class="tcols"><div class="tcol"><p class="mut">Marca las candidaturas a sumar; el mapa «Suma» se actualiza solo.</p>
   <div class="checks">${rows.map(r => `<label><input type="checkbox" data-cod="${r.cod}" ${S.sel.has(r.cod) ? 'checked' : ''}> ${esc(r.siglas)} <span class="mut">${n0(r.votos)}</span></label>`).join('')}</div>
   <button class="link" data-clear>Quitar todas</button> <button class="link" data-viewmode="agregado">Ver la suma en el mapa</button>
-  <h3>Resultado conjunto</h3>${kv([['Votos agregados', '<b>' + n0(c.agg) + '</b>'], ['% sobre votos válidos', '<b>' + p2(c.pctAgg) + ' %</b>']])}
+  </div><div class="tcol"><h3>Resultado conjunto</h3>${kv([['Votos agregados', '<b>' + n0(c.agg) + '</b>'], ['% sobre votos válidos', '<b>' + p2(c.pctAgg) + ' %</b>']])}
   <div class="bar"><span style="width:${c.pctAgg || 0}%" class="a"></span><span style="width:${c.pctResto || 0}%" class="r"></span><span style="width:${c.pctBlancos || 0}%" class="b"></span></div>
   <p class="leg"><i class="a"></i>Agregado ${p1(c.pctAgg)} <i class="r"></i>Resto ${p1(c.pctResto)} <i class="b"></i>Blancos ${p1(c.pctBlancos)}</p>
-  <p class="mut">Suma de los votos originales de las candidaturas marcadas, dividida entre los votos válidos (suma de secciones: ${n0(c.validos)}).</p>`;
+  <p class="mut">Suma de los votos originales de las candidaturas marcadas, dividida entre los votos válidos (suma de secciones: ${n0(c.validos)}).</p></div></div>`;
 }
 export function fortaleza(S, f) {
   const cnt = f.counts, tot = Object.values(cnt).reduce((a, b) => a + b, 0);
-  return `<p class="mut">Candidatura: <b>${esc(S.cands[S.cand] || '')}</b>${S.useAgg ? ' (suma marcada)' : ''} · cámbiala en el selector superior.</p>
+  return `<div class="tcols"><div class="tcol"><p class="mut">Candidatura: <b>${esc(S.cands[S.cand] || '')}</b>${S.useAgg ? ' (suma marcada)' : ''} · cámbiala en el selector superior.</p>
   <button class="link" data-viewmode="fortaleza">Ver la fortaleza en el mapa</button>
   <label class="chk"><input type="checkbox" id="useAgg" ${S.useAgg ? 'checked' : ''}> Aplicar a la suma marcada</label>
   ${f.V === 0 ? '<p class="warn">La candidatura no obtiene votos en el municipio: clasificación no aplicable.</p>' : ''}
   ${kv([['Media municipal', p2(f.V && pct(f.V, f.BV)) + (f.V ? ' %' : '')], ['Votos / válidos (suma de secciones)', `${n0(f.V)} / ${n0(f.BV)}`]])}
-  <table><tr><th>Categoría</th><th class="r">Umbral (índice)</th><th class="r">Secciones</th></tr>
+  </div><div class="tcol"><table><tr><th>Categoría</th><th class="r">Umbral (índice)</th><th class="r">Secciones</th></tr>
   <tr><td><i class="sw" style="background:#0b4f9c"></i>Fuerte</td><td class="r">&gt; 1,5</td><td class="r">${cnt.fuerte}</td></tr>
   <tr><td><i class="sw" style="background:#7fb2de"></i>Medio</td><td class="r">0,5 – 1,5</td><td class="r">${cnt.medio}</td></tr>
   <tr><td><i class="sw" style="background:#dbe9f6;border:1px solid #bbb"></i>Débil</td><td class="r">&lt; 0,5</td><td class="r">${cnt.debil}</td></tr>
   <tr><td><i class="sw" style="background:#d9d9d9"></i>Sin clasificar / n.a.</td><td></td><td class="r">${cnt.sin + cnt.na}</td></tr></table>
-  <p class="mut">Índice = % del partido en la sección ÷ % del partido en el municipio (ambos sobre votos válidos). La media municipal es votos totales ÷ votos válidos, no la media de porcentajes de las secciones. ${tot} secciones con resultados.</p>`;
+  <p class="mut">Índice = % del partido en la sección ÷ % del partido en el municipio (ambos sobre votos válidos). La media municipal es votos totales ÷ votos válidos, no la media de porcentajes de las secciones. ${tot} secciones con resultados.</p></div></div>`;
 }
 export function popup(S, id, s, extra) {
   const t = totals(s), rows = Object.entries(s[4]).sort((a, b) => b[1] - a[1]);
@@ -72,12 +72,12 @@ export function grupos(S, store) {
   const inG = g => rows.filter(r => store.groupOf(r.siglas) === g).map(r => r.cod);
   const res = G.map(g => { const v = votesOf(S.base, inG(g.id)); return { g, n: inG(g.id).length, v, p: pct(v, t.validos) }; });
   const rest = t.cand - res.reduce((a, r) => a + r.v, 0), col = id => GCOL[id] || '#737373';
-  return `<p class="mut">Asigna cada candidatura al grupo que prefieras; se guarda en este navegador y se recuerda en otros municipios por sus siglas. Los votos se suman y el % es sobre votos válidos (blancos incluidos).</p>
+  return `<div class="tcols"><div class="tcol"><p class="mut">Asigna cada candidatura al grupo que prefieras; se guarda en este navegador y se recuerda en otros municipios por sus siglas. Los votos se suman y el % es sobre votos válidos (blancos incluidos).</p>
   <div class="checks"><table class="grp"><tr><th>Candidatura</th>${G.map(g => `<th class="c">${esc(g.name)}</th>`).join('')}</tr>${rows.map(r => `<tr><td>${esc(r.siglas)} <span class="mut">${n0(r.votos)}</span></td>${G.map(g => `<td class="c"><input type="checkbox" data-sig="${esc(r.siglas)}" data-g="${g.id}" ${store.groupOf(r.siglas) === g.id ? 'checked' : ''}></td>`).join('')}</tr>`).join('')}</table></div>
-  <h3>Resultado por grupo</h3>${kv(res.map(r => [`<i class="sw" style="background:${col(r.g.id)}"></i>${esc(r.g.name)} <span class="mut">(${r.n} cand.)</span>`, `<b>${n0(r.v)}</b> · ${p2(r.p)} %`]).concat([['Sin asignar (cand.) + blancos', `${n0(rest + t.blancos)} · ${p2(pct(rest + t.blancos, t.validos))} %`]]))}
+  </div><div class="tcol"><h3>Resultado por grupo</h3>${kv(res.map(r => [`<i class="sw" style="background:${col(r.g.id)}"></i>${esc(r.g.name)} <span class="mut">(${r.n} cand.)</span>`, `<b>${n0(r.v)}</b> · ${p2(r.p)} %`]).concat([['Sin asignar (cand.) + blancos', `${n0(rest + t.blancos)} · ${p2(pct(rest + t.blancos, t.validos))} %`]]))}
   <div class="bar">${res.map(r => `<span style="width:${r.p || 0}%;background:${col(r.g.id)}"></span>`).join('')}</div>
   <p class="seg">${res.map(r => `<button data-viewg="${r.g.id}">Ver ${esc(r.g.name)} en el mapa</button>`).join('')}</p>
-  <p class="mut">Suma de secciones (misma base que el mapa). Ninguna candidatura viene clasificada de antemano.</p>`;
+  <p class="mut">Suma de secciones (misma base que el mapa). Ninguna candidatura viene clasificada de antemano.</p></div></div>`;
 }
 
 // ---- Resultados: consulta + análisis territorial (Ideología, Suma, Fortaleza) en la zona inferior, con explicación didáctica
@@ -95,8 +95,15 @@ export const INFO = {
 const TOOL_OF = m => m.startsWith('g:') ? 'ideologia' : m === 'agregado' ? 'suma' : m === 'fortaleza' ? 'fortaleza' : null;
 export function tool(S, id, title, body) {
   const open = !!S.info[id];
-  return `<section class="tool" id="tool-${id}"><div class="tool-h"><button class="tool-t" data-info="${id}" aria-expanded="${open}" title="Qué es ${title}">${title}</button><button class="ibtn" data-info="${id}" aria-expanded="${open}" aria-label="Información sobre ${title}">ⓘ</button>${TOOL_OF(S.mode) === id ? '<span class="badge">en el mapa</span>' : ''}</div><div class="info"${open ? '' : ' hidden'}>${INFO[id]}</div>${body}</section>`;
+  return `<section class="tool" id="tool-${id}"><div class="tool-h"><button class="tool-t" data-info="${id}" aria-expanded="${open}" title="Qué es ${title}">${title}</button><button class="ibtn" data-info="${id}" aria-expanded="${open}" aria-label="Información sobre ${title}">ⓘ</button>${TOOL_OF(S.mode) === id ? '<span class="badge">en el mapa</span>' : ''}<button class="x" data-closetool aria-label="Cerrar herramienta">✕</button></div><div class="info"${open ? '' : ' hidden'}>${INFO[id]}</div>${body}</section>`;
 }
-export const resultadosPage = (S, store, f) => resultados(S)
-  + `<div class="tools-h"><h2>Análisis territorial</h2><p class="mut">Tres herramientas para ver en el mapa cómo se reparte el voto. Pulsa el título o el icono ⓘ para saber qué hace cada una.</p></div>`
-  + tool(S, 'ideologia', 'Ideología', grupos(S, store)) + tool(S, 'suma', 'Suma', agregacion(S)) + tool(S, 'fortaleza', 'Fortaleza', fortaleza(S, f));
+
+// ---- Menú inferior (independiente del menú lateral): Ideología, Fortaleza, Suma. Reutiliza grupos()/fortaleza()/agregacion().
+export const TOOLS = [['ideologia', 'Ideología'], ['fortaleza', 'Fortaleza'], ['suma', 'Suma']];
+export const toolNav = S => TOOLS.map(([id, l]) => `<button data-tool="${id}" class="${S.tool === id ? 'on' : ''}" aria-pressed="${S.tool === id}">${l}</button>`).join('');
+export function toolPanel(S, store, f) {
+  const title = TOOLS.find(t => t[0] === S.tool)[1];
+  const body = !S.muni || S.muni.small || !f ? '<p class="mut">Elige un municipio con mapa para usar esta herramienta.</p>' : { ideologia: () => grupos(S, store), fortaleza: () => fortaleza(S, f), suma: () => agregacion(S) }[S.tool]();
+  return tool(S, S.tool, title, body);
+}
+export const cruce = () => '<h2>Cruce</h2><p class="mut">Este apartado se incorporará próximamente.</p>';

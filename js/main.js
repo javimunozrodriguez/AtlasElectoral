@@ -1,11 +1,11 @@
 // Orquestación: estado, selección de municipio, modalidades de mapa y paneles.
-import * as D from './data.js?v=3'; import * as C from './calc.js?v=3'; import { classify } from './strength.js?v=3'; import * as M from './map.js?v=3'; import * as U from './ui.js?v=3'; import { createStore } from './store.js?v=3'; import * as H from './dhondt_view.js?v=3';
+import * as D from './data.js?v=4'; import * as C from './calc.js?v=4'; import { classify } from './strength.js?v=4'; import * as M from './map.js?v=4'; import * as U from './ui.js?v=4'; import { createStore } from './store.js?v=4'; import * as H from './dhondt_view.js?v=4';
 const $ = s => document.querySelector(s);
 const BLUES = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'], GREENS = ['#edf8e9', '#bae4b3', '#74c476', '#31a354', '#006d2c'], PURPLES = ['#f2f0f7', '#cbc9e2', '#9e9ac8', '#756bb1', '#54278f'], REDS = ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15'], GREYS = ['#f7f7f7', '#d9d9d9', '#bdbdbd', '#737373', '#252525'];
 const GRAMP = { izq: REDS, der: BLUES, na: GREYS }, isG = m => m.startsWith('g:');
 const RAMP = { participacion: GREENS, votos: BLUES, pct: BLUES, agregado: PURPLES };
 const CATCOL = { fuerte: '#0b4f9c', medio: '#7fb2de', debil: '#dbe9f6', sin: '#d9d9d9', na: '#d9d9d9' };
-const S = { election: null, index: [], cumun: null, muni: null, cands: {}, base: null, geo: [], provName: '', mode: 'participacion', cand: null, sel: new Set(), tab: 'resultados', tabs: 'abs', info: {}, useAgg: false, val: null, view: null, names: {}, dh: { cod: null, extra: 0 }, page: 'mapa', store: null };
+const S = { election: null, index: [], cumun: null, muni: null, cands: {}, base: null, geo: [], provName: '', mode: 'participacion', cand: null, sel: new Set(), tab: 'resultados', tabs: 'abs', info: {}, tool: null, useAgg: false, val: null, view: null, names: {}, dh: { cod: null, extra: 0 }, page: 'mapa', store: null };
 const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const TOOL_ID = m => isG(m) ? 'ideologia' : m === 'agregado' ? 'suma' : m === 'fortaleza' ? 'fortaleza' : null;
 const groupCods = g => Object.keys(S.muni.off || {}).filter(c => S.store.groupOf(S.cands[c]) === g);
@@ -57,10 +57,24 @@ function fstats() {
 }
 function render() {
   const p = $('#panel'), top = p.scrollTop; $('#tabs').innerHTML = U.tabsHtml(S.tab);
-  if (!S.muni) p.innerHTML = '<p class="mut">Busca un municipio para ver sus resultados.</p>';
+  if (S.tab === 'cruce') p.innerHTML = U.cruce();
+  else if (!S.muni) p.innerHTML = '<p class="mut">Busca un municipio para ver sus resultados.</p>';
   else if (S.muni.small || S.tab === 'resumen') p.innerHTML = U.resumen(S);
-  else p.innerHTML = U.resultadosPage(S, S.store, fstats());
+  else p.innerHTML = U.resultados(S);
   p.scrollTop = top;   // al repintar no se pierde la posición de desplazamiento
+  renderTools();
+}
+// Menú inferior: independiente de la pestaña lateral (misma lógica de cálculo, solo cambia dónde se monta)
+function renderTools() {
+  const body = $('#toolbody'), top = body.scrollTop; $('#toolnav').innerHTML = U.toolNav(S);
+  if (!S.tool) { body.hidden = true; body.innerHTML = ''; }
+  else { body.innerHTML = U.toolPanel(S, S.store, fstats()); body.hidden = false; body.scrollTop = top; }
+  M.resize();
+}
+function openTool(id) {
+  if (S.tool === id) { S.tool = null; render(); return; }   // pulsar de nuevo la herramienta activa la cierra
+  S.tool = id;
+  if (S.muni && !S.muni.small) { S.mode = id === 'ideologia' ? (isG(S.mode) ? S.mode : 'g:izq') : id === 'suma' ? 'agregado' : 'fortaleza'; $('#mode').value = S.mode; refresh(false); } else render();
 }
 function refresh(redraw) {
   if (!S.muni || S.muni.small) { render(); return; }
@@ -88,24 +102,25 @@ function search(q) {
   box.innerHTML = hits.map(x => `<li data-m="${x[0]}">${U.esc(x[1])} <span>${U.esc(x[2])}${x[3] === 1 ? ' · sin mapa (<250 hab.)' : x[3] === 0 ? ' · sin resultados' : ''}</span></li>`).join('') || '<li class="mut">Sin coincidencias</li>'; box.hidden = false;
 }
 function renderDh() { if (S.page === 'concejales') $('#dh').innerHTML = H.html(S); }
-function setPage(p) { S.page = p; $('main').hidden = p !== 'mapa'; $('#dh').hidden = p !== 'concejales'; document.body.dataset.view = p; if (p === 'mapa') { M.resize(); if (S.muni && !S.muni.small) refresh(true); } else renderDh(); }
+function setPage(p) { S.page = p; $('main').hidden = p !== 'mapa'; $('#dh').hidden = p !== 'concejales'; $('#toolbar').hidden = p !== 'mapa'; document.body.dataset.view = p; if (p === 'mapa') { M.resize(); if (S.muni && !S.muni.small) refresh(true); } else renderDh(); }
 async function loadElection(id) {
   S.election = id; S.index = await D.index(id); S.val = await D.validation(id); S.muni = null; S.cumun = null; M.clear(); render();
 }
 async function init() {
-  document.querySelector('.ver').textContent = 'v3';   // marca visible: confirma que se ha cargado el JavaScript nuevo
+  document.querySelector('.ver').textContent = 'v4';   // marca visible: confirma que se ha cargado el JavaScript nuevo
   if (location.protocol === 'file:') $('#panel').innerHTML = '<p class="warn">Abre la aplicación desde un servidor local: <code>python3 -m http.server</code> y visita http://localhost:8000</p>';
   S.store = createStore(); M.init('map'); const els = await D.elections(); $('#elec').innerHTML = els.map(e => `<option value="${e.id}">${e.label}</option>`).join('');
   $('#elec').onchange = e => loadElection(e.target.value); await loadElection(els[0].id);
   $('#q').oninput = e => search(e.target.value);
   $('#q').onkeydown = e => { if (e.key === 'Enter') { const li = $('#results li[data-m]'); if (li) selectMuni(li.dataset.m); } };
   $('#results').onclick = e => { const li = e.target.closest('li[data-m]'); if (li) selectMuni(li.dataset.m); };
-  $('#mode').onchange = e => { S.mode = e.target.value; S.tab = S.mode === 'participacion' ? 'resumen' : 'resultados'; refresh(false); const t = TOOL_ID(S.mode); if (t) $('#tool-' + t)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }); else $('#panel').scrollTop = 0; };
+  $('#mode').onchange = e => { S.mode = e.target.value; S.tab = S.mode === 'participacion' ? 'resumen' : 'resultados'; const t = TOOL_ID(S.mode); if (t) S.tool = t; refresh(false); $('#panel').scrollTop = 0; };
   $('#cand').onchange = e => { S.cand = e.target.value; refresh(false); };
   $('#base').onchange = e => M.toggleBase(e.target.checked);
+  $('#toolnav').onclick = e => { const b = e.target.closest('[data-tool]'); if (b) openTool(b.dataset.tool); };
   $('#tabs').onclick = e => { const b = e.target.closest('[data-tab]'); if (b) { S.tab = b.dataset.tab; render(); $('#panel').scrollTop = 0; } };
-  $('#panel').onclick = e => { const b = e.target.closest('[data-tm]'); if (b) { S.tabs = b.dataset.tm; render(); } if (e.target.matches('[data-clear]')) { S.sel.clear(); refresh(false); } const inf = e.target.closest('[data-info]'); if (inf) { S.info[inf.dataset.info] = !S.info[inf.dataset.info]; render(); } const vm = e.target.closest('[data-viewmode]'); if (vm) { S.mode = vm.dataset.viewmode; $('#mode').value = S.mode; refresh(false); } const g = e.target.closest('[data-viewg]'); if (g) { S.mode = 'g:' + g.dataset.viewg; $('#mode').value = S.mode; refresh(false); } };
-  $('#panel').onchange = e => {
+  $('#panel').onclick = $('#toolbody').onclick = e => { const b = e.target.closest('[data-tm]'); if (b) { S.tabs = b.dataset.tm; render(); } if (e.target.matches('[data-clear]')) { S.sel.clear(); refresh(false); } if (e.target.closest('[data-closetool]')) { S.tool = null; render(); } const inf = e.target.closest('[data-info]'); if (inf) { S.info[inf.dataset.info] = !S.info[inf.dataset.info]; render(); } const vm = e.target.closest('[data-viewmode]'); if (vm) { S.mode = vm.dataset.viewmode; $('#mode').value = S.mode; refresh(false); } const g = e.target.closest('[data-viewg]'); if (g) { S.mode = 'g:' + g.dataset.viewg; $('#mode').value = S.mode; refresh(false); } };
+  $('#panel').onchange = $('#toolbody').onchange = e => {
     if (e.target.dataset.cod) { e.target.checked ? S.sel.add(e.target.dataset.cod) : S.sel.delete(e.target.dataset.cod); S.mode = 'agregado'; $('#mode').value = 'agregado'; refresh(false); }
     if (e.target.dataset.sig) { S.store.set(e.target.dataset.sig, e.target.checked ? e.target.dataset.g : null); isG(S.mode) ? refresh(false) : render(); }
     if (e.target.id === 'useAgg') { S.useAgg = e.target.checked; refresh(false); }

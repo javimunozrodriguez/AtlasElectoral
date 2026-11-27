@@ -53,3 +53,17 @@ tr.me td,tr.me th{background:color-mix(in srgb,var(--acc) 10%,transparent)}.up{c
 .badge{margin-left:auto;font-size:11px;background:var(--acc);color:#fff;border-radius:10px;padding:2px 8px}
 .info{background:var(--bg);border-left:3px solid var(--acc);border-radius:8px;padding:6px 12px;margin:8px 0;font-size:13px}.info[hidden]{display:none}.info p{margin:6px 0}.info ul{margin:6px 0;padding-left:18px}
 .ver{font-weight:400;font-size:11px;color:var(--mut);margin-left:4px}
+
+/* --- Menú inferior independiente: Ideología · Fortaleza · Suma --- */
+#toolbar{flex:none;border-top:3px solid var(--acc);background:color-mix(in srgb,var(--acc) 8%,var(--card));z-index:900}#toolbar[hidden]{display:none}
+#toolnav{display:flex;gap:8px;padding:8px 14px}
+#toolnav button{flex:1;padding:10px 8px;border:1px solid color-mix(in srgb,var(--acc) 35%,var(--line));border-radius:10px;background:var(--card);color:var(--ink);font:inherit;font-weight:700;letter-spacing:.04em;cursor:pointer}
+#toolnav button:hover{border-color:var(--acc)}#toolnav button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+#toolbody{max-height:min(40vh,340px);overflow:auto;padding:6px 18px 14px;border-top:1px solid var(--line);background:var(--card)}#toolbody[hidden]{display:none}
+#toolbody .tool{border:0;padding:0;margin:0}.tool-h .x{border:0;background:none;font-size:16px;cursor:pointer;color:var(--mut);margin-left:6px}
+.tcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:4px 32px;align-items:start}.tcols .checks{max-height:180px}
+main{min-height:240px}
+@media (max-width:900px){
+  html,body{height:auto}body{min-height:100vh}main{flex:none;grid-template-rows:minmax(280px,46vh) auto}#panel{max-height:55vh}
+  #toolbar{position:sticky;bottom:0}#toolnav{gap:5px;padding:6px 8px}#toolnav button{padding:9px 2px;font-size:13px;letter-spacing:0}#toolbody{max-height:48vh;padding:4px 10px 10px}
+}

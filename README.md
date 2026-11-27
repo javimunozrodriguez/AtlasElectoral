@@ -51,8 +51,9 @@ Sube la carpeta completa (incluida `data/`, ~58 MB) a un repositorio y activa Pa
 
 ## Organización de la interfaz (v3)
 - **Navegación principal (cabecera):** Mapa | Concejales. Concejales es el antiguo apartado D'Hondt (misma funcionalidad). Para añadir otra sección principal basta un botón `data-view` en `index.html`, su contenedor y un caso en `setPage()` de `js/main.js`.
-- **Menú lateral:** solo Resultados y Resumen (`TABS` en `js/ui.js`).
-- **Resultados:** tabla de resultados arriba y, más abajo, el análisis territorial: **Ideología** (antes Agrupaciones), **Suma** (antes Agregación) y **Fortaleza**. Cada una tiene una explicación didáctica al pulsar su título o el icono ⓘ (`INFO` en `js/ui.js`).
+- **Menú lateral:** Resultados, Resumen y Cruce (`TABS` en `js/ui.js`). «Cruce» es por ahora un marcador de posición.
+- **Menú inferior (v4):** franja horizontal independiente bajo el mapa y el menú lateral, a todo el ancho, con **Ideología**, **Fortaleza** y **Suma**. Es persistente: sigue disponible en Resultados, Resumen y Cruce (se oculta solo en Concejales, que no usa el mapa). Pulsar una opción la abre y pone el mapa en esa modalidad; pulsarla de nuevo la cierra. Cada herramienta tiene su explicación didáctica (título o icono ⓘ, `INFO` en `js/ui.js`). La lógica es la misma (`grupos()`, `agregacion()`, `fortaleza()`); solo cambia dónde se monta (`renderTools()` en `js/main.js`).
+- **Resultados:** solo la tabla de resultados por candidatura.
 - **Validación:** se retira el apartado visible. `validation.json` se sigue generando y cargando porque alimenta los avisos de cada municipio (secciones sin polígono, etc.).
 
 ## Pruebas
@@ -76,7 +77,7 @@ python3 tests/verify_data.py <carpeta DAT> data/municipales-2023
 Comparación de partidos y de elecciones, evolución por sección, exportación CSV/Excel/PNG/GeoJSON y la carga de ficheros brutos desde el navegador (hoy se hace con el pipeline).
 
 ## Si en GitHub Pages no ves los cambios
-1. Junto al título debe verse **«v3»**. Si no aparece, el navegador (o el repositorio) tiene JavaScript antiguo.
+1. Junto al título debe verse **«v4»**. Si no aparece, el navegador (o el repositorio) tiene JavaScript antiguo.
 2. Recarga sin caché (Ctrl+Shift+R, o Cmd+Shift+R en Mac). GitHub Pages cachea unos minutos.
 3. Comprueba que en el repositorio están **todas** las carpetas: `js/`, `css/`, `data/`, `config/`, `pipeline/` y `index.html` en la raíz, no dentro de una subcarpeta `app/`.
 4. En la pestaña Actions del repositorio, el último despliegue («pages build and deployment») debe estar en verde.
