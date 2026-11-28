@@ -7,13 +7,14 @@ const mkLS = () => { const m = new Map(); return { getItem: k => m.has(k) ? m.ge
 globalThis.localStorage = mkLS(); globalThis.location = { protocol: 'https:', href: BASE + 'index.html' };
 globalThis.fetch = async u => { raw.push(u); const url = new URL(u, location.href); assert.ok(url.pathname.startsWith('/atlas/'), 'ruta fuera de la subruta: ' + u); const f = url.pathname.slice(7), ok = fs.existsSync(f); return { ok, status: ok ? 200 : 404, json: async () => JSON.parse(fs.readFileSync(f)) }; };
 globalThis.document = { querySelector: s => el(s), getElementById: s => el('#' + s), body: { dataset: {} } }; globalThis.window = { addEventListener() {} };
-globalThis.L = { map: () => ({ setView() { return this; }, fitBounds() {}, removeLayer() {}, invalidateSize() {} }), tileLayer: () => ({ addTo() { return this; } }), control: () => ({ addTo() { this.onAdd(); return this; } }), DomUtil: { create: () => rec.legend },
+globalThis.L = { map: () => ({ setView() { return this; }, fitBounds() {}, removeLayer() {}, invalidateSize() { rec.inval = (rec.inval || 0) + 1; } }), tileLayer: () => ({ addTo() { return this; } }), control: () => ({ addTo() { this.onAdd(); return this; } }), DomUtil: { create: () => rec.legend },
   geoJSON: (fc, o) => { const ls = fc.features.map(f => { const l = { f, bindTooltip(fn) { this.tip = fn; }, bindPopup(fn) { this.pop = fn; }, on() {}, setStyle() {} }; o.onEachFeature(f, l); l.style = o.style(f); return l; }); rec.layers = ls; return { addTo() { return this; }, getBounds() {}, resetStyle() {}, setStyle(fn) { ls.forEach(l => l.style = fn(l.f)); } }; } };
 for (const k of ['#panel', '#toolbody']) { const pn = el(k); let h = ''; Object.defineProperty(pn, 'innerHTML', { get: () => h, set: v => { h = v; pn.scrollTop = 0; } }); }
 const chSig = (sig, g, checked = true) => els['#toolbody'].onchange({ target: { dataset: { sig, g }, checked, id: '' } });
 const tick = (ms = 500) => new Promise(r => setTimeout(r, ms)), pick = m => { els['#results'].onclick({ target: { closest: () => ({ dataset: { m } }) } }); return tick(); };
 const tab = t => els['#tabs'].onclick({ target: { closest: () => ({ dataset: { tab: t } }) } }), page = v => els['.main-nav'].onclick({ target: { closest: () => ({ dataset: { view: v } }) } });
 const n0 = v => Math.round(v).toLocaleString('es-ES'), p2 = v => v.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const ROs = [], ROobs = []; globalThis.ResizeObserver = class { constructor(cb) { ROs.push(cb); } observe(e) { ROobs.push(e); } };
 await import('../js/main.js'); await tick();
 const { KEY, createStore } = await import('../js/store.js');
 const res09 = JSON.parse(fs.readFileSync('data/municipales-2023/res/09.json')), bur = res09.muni['09059'], cod = s => Object.keys(res09.cands).find(c => res09.cands[c] === s && bur.off[c]);
@@ -30,9 +31,9 @@ console.log('OK participación por defecto |', tip, '| popup sin Población');
 
 // ===== Estructura de navegación: menú lateral (Resultados, Resumen, Cruce) + menú inferior independiente (Ideología, Fortaleza, Suma) =====
 const idx = fs.readFileSync('index.html', 'utf8'), labels = h => [...h.matchAll(/>([^<]+)<\/button>/g)].map(m => m[1]);
-assert.deepEqual(labels(idx.match(/<nav class="main-nav">([\s\S]*?)<\/nav>/)[1]), ['Mapa', 'Concejales']);
+assert.deepEqual(labels(idx.match(/<nav class="main-nav"[^>]*>([\s\S]*?)<\/nav>/)[1]), ['Mapa', 'Concejales', 'Cruce']);
 assert.ok(!/alidaci/.test(idx) && !/alidaci/.test(fs.readFileSync('js/ui.js', 'utf8')), 'sin Validación');
-assert.deepEqual([...els['#tabs'].innerHTML.matchAll(/data-tab="\w+"[^>]*>([^<]+)</g)].map(m => m[1]), ['Resultados', 'Resumen', 'Cruce'], 'menú lateral');
+assert.deepEqual([...els['#tabs'].innerHTML.matchAll(/data-tab="\w+"[^>]*>([^<]+)</g)].map(m => m[1]), ['Resultados', 'Resumen'], 'menú lateral: solo Resultados y Resumen'); assert.ok(!/Cruce|Mapa|Concejales/.test(els['#tabs'].innerHTML), 'ninguna pestaña principal en el menú lateral');
 assert.deepEqual([...els['#toolnav'].innerHTML.matchAll(/data-tool="\w+"[^>]*>([^<]+)</g)].map(m => m[1]), ['Ideología', 'Fortaleza', 'Suma'], 'menú inferior, en ese orden');
 const iFoot = idx.indexOf('id="toolbar"'); assert.ok(iFoot > idx.indexOf('</main>') && !/<aside>[\s\S]*id="toolbar"[\s\S]*<\/aside>/.test(idx), 'franja inferior fuera del <main> y del <aside>: ocupa todo el ancho');
 let rp = els['#panel'].innerHTML; assert.ok(rp.includes('Resultados por candidatura') && !/id="tool-|data-info|data-sig|Ideología|Fortaleza|>Suma</.test(rp), 'Resultados ya no contiene las herramientas');
@@ -41,9 +42,9 @@ const click = (id, k, v) => els[id].onclick({ target: { closest: s => s === k ? 
 const openTool = id => click('#toolnav', '[data-tool]', id), info = id => click('#toolbody', '[data-info]', id);
 const body = () => els['#toolbody'].innerHTML, sect = id => body().match(new RegExp(`<section class="tool" id="tool-${id}">([\\s\\S]*?)</section>`))[1];
 // cada opción abre su herramienta en la franja inferior y es accesible desde cualquier pestaña lateral
-for (const t of ['resultados', 'resumen', 'cruce']) { tab(t);
+for (const t of ['resultados', 'resumen']) { tab(t);
   for (const [id, mark] of [['ideologia', 'data-sig="PSOE"'], ['fortaleza', 'Índice = % del partido'], ['suma', 'data-cod=']]) { openTool(id); assert.equal(els['#toolbody'].hidden, false); assert.ok(sect(id).includes(mark), `${t}: ${id} abre su herramienta`); } }
-assert.ok(els['#panel'].innerHTML.includes('Cruce') && !/id="tool-/.test(els['#panel'].innerHTML), 'Cruce en el menú lateral');
+assert.ok(!/id="tool-/.test(els['#panel'].innerHTML), 'el panel lateral no contiene herramientas');
 tab('resumen'); assert.equal(els['#toolbody'].hidden, false, 'el menú inferior persiste al cambiar de pestaña lateral'); assert.ok(sect('suma').includes('data-cod='));
 openTool('suma'); assert.equal(els['#toolbody'].hidden, true, 'pulsar de nuevo la herramienta activa la cierra');
 // explicaciones didácticas
@@ -59,7 +60,7 @@ els['#mode'].onchange({ target: { value: 'agregado' } }); assert.ok(body().inclu
 click('#toolbody', '[data-closetool]', '1'); assert.equal(els['#toolbody'].hidden, true, 'botón de cerrar');
 await pick('03014'); tab('resumen'); assert.ok(els['#panel'].innerHTML.includes('se muestran en gris') && /Distrito \d\d - Sección \d{3}/.test(els['#panel'].innerHTML), 'avisos internos de datos intactos');
 await pick('09059'); els['#mode'].onchange({ target: { value: 'participacion' } }); tab('resultados');
-console.log('OK navegación: lateral [Resultados, Resumen, Cruce] + inferior [Ideología, Fortaleza, Suma] independiente y persistente');
+console.log('OK navegación: principal [Mapa, Concejales, Cruce] · lateral [Resultados, Resumen] · inferior [Ideología, Fortaleza, Suma]');
 
 // 1) agrupaciones (menú inferior)
 openTool('ideologia'); assert.ok(body().includes('data-sig="PSOE"'));
@@ -74,6 +75,49 @@ const saved = JSON.parse(localStorage._m.get(KEY)); assert.equal(saved.assign.PS
 assert.equal(createStore(localStorage).groupOf('PSOE'), 'izq', 'sobrevive a recargar'); assert.equal(createStore(mkLS()).groupOf('PSOE'), null, 'otro navegador: independiente');
 await pick('28079'); openTool('ideologia'); if (els['#toolbody'].hidden) openTool('ideologia'); assert.ok(body().includes('data-sig="PSOE" data-g="izq" checked'), 'se conserva en otro municipio');
 await pick('09059'); console.log('OK persistencia: localStorage por navegador y por siglas');
+
+// ===== Parte 2: el mapa tiene límites propios; leyenda y atribución no se salen de él =====
+const css = fs.readFileSync('css/app.css', 'utf8');
+assert.ok(/#map\{[^}]*isolation:isolate[^}]*overflow:hidden/.test(css), '#map aislado (contiene los z-index de Leaflet) y con límites propios');
+assert.ok(!/position:\s*(sticky|fixed)/.test(css), 'sin posiciones sticky ni fixed');
+assert.ok(/<main>\s*<div id="map"><\/div>/.test(idx) && idx.indexOf('id="toolbar"') > idx.indexOf('</main>'), 'franja inferior en su propio espacio del flujo, tras el contenedor del mapa');
+assert.equal(ROs.length, 1); assert.equal(ROobs[0], els['#map']); const inv0 = rec.inval; ROs[0](); assert.ok(rec.inval > inv0, 'el mapa se actualiza al cambiar de tamaño');
+const inv1 = rec.inval; page('concejales'); page('cruce'); page('mapa'); assert.ok(rec.inval > inv1, 'se actualiza al volver a la pestaña Mapa');
+console.log('OK mapa: contenedor aislado, sin posiciones fijas, se redimensiona solo');
+
+// ===== Parte 3: Cruce (pestaña principal) =====
+const near = (a, b, e = 1e-9) => assert.ok(Math.abs(a - b) < e, `${a} ≉ ${b}`);
+page('cruce'); assert.equal(els['#cx'].hidden, false); for (const k of ['main', '#dh', '#toolbar']) assert.equal(els[k].hidden, true, k + ' oculto en Cruce');
+const cxh = () => els['#cx'].innerHTML, stat = k => +cxh().match(new RegExp(`data-stat="${k}" data-v="([^"]+)"`))[1], cxClick = (k, d) => els['#cx'].onclick({ target: { closest: s => s === k ? { dataset: d } : null } }), cxSet = (ax, f, value) => els['#cx'].onchange({ target: { dataset: { ax, f }, value } });
+assert.ok(cxh().includes('Los datos representan secciones censales, no personas individuales') && cxh().includes('Debe evitarse la falacia ecológica'), 'advertencia metodológica');
+assert.ok(Object.keys(bur.s).every(k => !cxh().includes(k)), 'ningún código de sección (CUSEC) aparece en la interfaz de Cruce');
+const tips = () => [...cxh().matchAll(/<circle[^>]*data-tip="([^"]*)"/g)].map(m => m[1]); assert.equal(tips().length, 147); assert.ok(tips().every(t => /^Distrito \d\d - Sección \d{3}\n/.test(t)), 'puntos identificados como Distrito XX - Sección XXX');
+const naiveReg = (xs, ys) => { const n = xs.length, mx = xs.reduce((a, b) => a + b) / n, my = ys.reduce((a, b) => a + b) / n; let sxy = 0, sxx = 0, syy = 0; xs.forEach((x, i) => { sxy += (x - mx) * (ys[i] - my); sxx += (x - mx) ** 2; syy += (ys[i] - my) ** 2; }); return { slope: sxy / sxx, r: sxy / Math.sqrt(sxx * syy), n }; };
+const SEC = Object.values(bur.s), part = s => (s[1] + s[2] + s[3]) / s[0] * 100, valid = s => s[3] + s[1], vo = (s, cs) => cs.reduce((a, c) => a + (s[4][c] || 0), 0);
+let R = naiveReg(SEC.map(part), SEC.map(s => s[4][cod('PSOE')] / valid(s) * 100)); assert.equal(stat('n'), 147); near(stat('pendiente'), R.slope); near(stat('r'), R.r); near(stat('R²'), R.r ** 2);   // preset inicial: participación vs % PSOE
+assert.ok(cxh().includes('Participación (%)') && cxh().includes('% de voto · PSOE'), 'nombres de ambos ejes');
+// filtros: cambian los resultados
+const key0 = cxh().match(/data-win="([^"]+)"/)[1]; cxClick('[data-win]', { win: key0 }); const nF = stat('n'); assert.ok(nF < 147, 'excluir una candidatura ganadora reduce n'); cxClick('[data-resetf]', {}); assert.equal(stat('n'), 147, 'restablecer filtros');
+cxClick('[data-grp]', { grp: 'der' }); assert.ok(stat('n') < 147, 'filtro por agrupación líder'); cxClick('[data-resetf]', {});
+els['#cx'].onchange({ target: { dataset: { flt: 'incomplete' }, checked: false } }); assert.equal(stat('n'), 147);   // Burgos no tiene secciones incompletas
+// variables: censo vs votantes (independiente) y Ideología / Suma integradas
+cxSet('x', 'kind', 'censo'); cxSet('y', 'kind', 'votantes'); R = naiveReg(SEC.map(s => s[0]), SEC.map(s => s[1] + s[2] + s[3])); near(stat('r'), R.r); near(stat('pendiente'), R.slope);
+cxSet('y', 'kind', 'grupo'); cxSet('y', 'f', 'izq'); els['#cx'].onchange({ target: { dataset: { ax: 'y', f: 'group' }, value: 'izq' } });
+R = naiveReg(SEC.map(s => s[0]), SEC.map(s => vo(s, [cod('PSOE'), cod('PODEMOS-IU-AV')]) / valid(s) * 100)); assert.ok(cxh().includes('% de voto · Ideología: Izquierdas')); near(stat('r'), R.r, 1e-9);
+els['#toolbody'].onchange({ target: { dataset: { cod: cod('PP') }, checked: true, id: '' } });   // Suma: PSOE + PP
+cxSet('y', 'kind', 'suma'); R = naiveReg(SEC.map(part), SEC.map(s => vo(s, [cod('PSOE'), cod('PP')]) / valid(s) * 100)); cxSet('x', 'kind', 'part'); assert.ok(cxh().includes('Suma (PSOE + PP)')); near(stat('r'), R.r, 1e-9);
+// sin datos: la agrupación «No alineadas» no tiene candidaturas -> aviso, sin ceros inventados
+els['#cx'].onchange({ target: { dataset: { ax: 'y', f: 'kind' }, value: 'grupo' } }); els['#cx'].onchange({ target: { dataset: { ax: 'y', f: 'group' }, value: 'na' } });
+assert.ok(/no tiene candidaturas asignadas/.test(cxh()) && cxh().includes('No hay secciones con datos válidos') && stat('n') === 0, 'sin datos: aviso y n = 0');
+// accesos rápidos
+const ids = [...cxh().matchAll(/data-preset="([^"]+)"/g)].map(m => m[1]); assert.deepEqual(ids, ['part-cand', 'part-grupo', 'part-idx', 'cand-cand', 'cand-grupo', 'censo-part', 'peso-pct']);
+for (const id of ids) { cxClick('[data-preset]', { preset: id }); assert.ok(stat('n') > 0 && tips().length > 0, 'preset ' + id); }
+cxClick('[data-preset]', { preset: 'censo-part' }); assert.ok(cxh().includes('Censo electoral') && cxh().includes('Participación (%)'));
+cxClick('[data-preset]', { preset: 'peso-pct' }); assert.ok(cxh().includes('Peso en el voto municipal (%) · PSOE'));
+// información emergente
+const tp = tips()[0]; els['#cx'].onmouseover({ target: { closest: () => ({ dataset: { tip: tp } }) }, clientX: 50, clientY: 60 }); assert.equal(els['#cxTip'].textContent, tp); assert.equal(els['#cxTip'].hidden, false); els['#cx'].onmouseout(); assert.equal(els['#cxTip'].hidden, true);
+cxClick('[data-swap]', {}); page('mapa'); assert.equal(els['main'].hidden, false); assert.equal(els['#toolbar'].hidden, false); assert.equal(els['#cx'].hidden, true);
+console.log('OK Cruce: tres pestañas principales, variables correctas, filtros, Ideología/Suma, ausentes y accesos rápidos');
 
 // 5) D'Hondt: independiente del módulo (implementación ingenua)
 // Implementación ingenua con enteros exactos. `against`: en empates absolutos (mismo cociente y votos) se desfavorece a esa candidatura.

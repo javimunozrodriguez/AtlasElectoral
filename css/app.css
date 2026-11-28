@@ -31,7 +31,7 @@ details{margin:6px 0}summary{cursor:pointer}.scroll{max-height:160px;overflow:au
 /* --- navegación principal, agrupaciones y D'Hondt --- */
 .main-nav{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.main-nav button{border:0;background:none;padding:6px 14px;font:inherit;color:var(--mut);cursor:pointer}
 body[data-view=mapa] .main-nav [data-view=mapa],body[data-view=concejales] .main-nav [data-view=concejales]{background:var(--acc);color:#fff}
-body[data-view=concejales] #mode,body[data-view=concejales] #cand,body[data-view=concejales] .chk{display:none}
+body:not([data-view=mapa]) #mode,body:not([data-view=mapa]) #cand,body:not([data-view=mapa]) .chk{display:none}
 .grp th.c,.grp td.c{text-align:center;font-size:11px;width:68px}.grp td.c{padding:3px 0}.seg button{padding:5px 10px}p.seg{display:flex;flex-wrap:wrap;gap:6px;border:0}p.seg button{border:1px solid var(--line);border-radius:8px;background:none;color:var(--ink);cursor:pointer;font:inherit}
 #dh{flex:1;overflow:auto;padding:18px 22px;max-width:1180px;width:100%;margin:0 auto}#dh[hidden]{display:none}main[hidden]{display:none}
 .dh-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px}.dh-head label{display:flex;gap:8px;align-items:center;color:var(--mut)}
@@ -65,5 +65,27 @@ tr.me td,tr.me th{background:color-mix(in srgb,var(--acc) 10%,transparent)}.up{c
 main{min-height:240px}
 @media (max-width:900px){
   html,body{height:auto}body{min-height:100vh}main{flex:none;grid-template-rows:minmax(280px,46vh) auto}#panel{max-height:55vh}
-  #toolbar{position:sticky;bottom:0}#toolnav{gap:5px;padding:6px 8px}#toolnav button{padding:9px 2px;font-size:13px;letter-spacing:0}#toolbody{max-height:48vh;padding:4px 10px 10px}
+  #toolnav{gap:5px;padding:6px 8px}#toolnav button{padding:9px 2px;font-size:13px;letter-spacing:0}#toolbody{max-height:48vh;padding:4px 10px 10px}
 }
+
+/* --- v5: navegación principal (Mapa · Concejales · Cruce) y mapa con límites propios --- */
+.main-nav{display:flex;gap:4px;padding:6px 14px 0;border:0;border-bottom:1px solid var(--line);border-radius:0;overflow:visible;background:var(--bg);flex:none}
+.main-nav button{padding:9px 26px;font-weight:700;border-radius:10px 10px 0 0;border:1px solid transparent;border-bottom:0;color:var(--mut);cursor:pointer;font:inherit;font-weight:700}
+.main-nav button:hover{color:var(--ink)}
+body[data-view=mapa] .main-nav [data-view=mapa],body[data-view=concejales] .main-nav [data-view=concejales],body[data-view=cruce] .main-nav [data-view=cruce]{background:var(--acc);color:#fff}
+#map{position:relative;z-index:0;isolation:isolate;overflow:hidden;min-height:260px}   /* contiene los z-index de Leaflet: leyenda y atribución no pueden salirse del mapa */
+#toolbar{position:relative;z-index:1}
+/* --- Cruce --- */
+#cx{flex:1;overflow:auto;padding:16px 20px 28px;max-width:1380px;width:100%;margin:0 auto}#cx[hidden]{display:none}
+.cx-presets{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}.chip{border:1px solid var(--line);border-radius:16px;padding:4px 11px;font:inherit;font-size:12.5px;cursor:pointer;background:var(--card);color:var(--ink)}
+.chip:hover{border-color:var(--acc)}.chip.off{opacity:.45;text-decoration:line-through}.chip i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.cx-grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}.cx-side .card{margin:0 0 14px}.cx-main .card{margin:0 0 12px}
+.cx-axes{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}.axis{flex:1;min-width:230px;border:1px solid var(--line);border-radius:10px;padding:6px 10px;display:flex;flex-direction:column;gap:6px}.axis legend{font-size:11px;color:var(--mut);padding:0 4px}
+.axis select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);max-width:100%}.swap{align-self:center;border:1px solid var(--line);background:var(--card);color:var(--acc);border-radius:50%;width:34px;height:34px;font-size:18px;cursor:pointer}
+.cx-chart{position:relative;padding:10px 12px}.cx-svg{width:100%;height:auto;display:block}.cx-svg text{fill:var(--mut);font-size:12px}.cx-svg .al{fill:var(--ink);font-weight:600}.cx-svg .grid{stroke:var(--line);stroke-width:1}.cx-svg .frame{fill:none;stroke:var(--line)}
+.cx-svg circle{fill-opacity:.72;stroke:#fff;stroke-width:.7;cursor:crosshair}.cx-svg circle:hover{fill-opacity:1;stroke:var(--ink);stroke-width:1.5}.cx-svg .reg{stroke:var(--ink);stroke-width:2;stroke-dasharray:6 4}
+.cxtip{position:absolute;pointer-events:none;background:#111e;color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;white-space:pre;z-index:5}.cxtip[hidden]{display:none}
+.cx-legend,.cx-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}.cx-empty{padding:60px 20px;text-align:center;color:var(--mut)}
+.eq{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--bg);padding:6px 10px;border-radius:8px;margin:8px 0}.def dt{font-weight:600;color:var(--ink);margin-top:6px}.def dd{text-align:left;color:var(--mut);margin:0}.def{display:block}
+@media (max-width:1000px){.cx-grid{grid-template-columns:1fr}}
+@media (max-width:900px){.main-nav{padding:6px 8px 0}.main-nav button{flex:1;padding:9px 6px}#cx{flex:none;padding:12px}}

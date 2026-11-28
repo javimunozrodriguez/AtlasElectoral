@@ -1,6 +1,6 @@
 // Interfaz: construcción de paneles HTML. No calcula; recibe valores ya calculados.
-import { totals, pct, compare, resultRows, votesOf } from './calc.js?v=4';
-import { CATS } from './strength.js?v=4';
+import { totals, pct, compare, resultRows, votesOf } from './calc.js?v=5';
+import { CATS } from './strength.js?v=5';
 export const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 export const n0 = v => v == null ? '—' : Math.round(v).toLocaleString('es-ES');
 export const p1 = v => v == null ? '—' : v.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' %';
@@ -9,7 +9,7 @@ export const p2 = v => v == null ? '—' : v.toLocaleString('es-ES', { minimumFr
 export const secLabel = id => `Distrito ${id.slice(5, 7)} - Sección ${id.slice(7, 10)}`;
 const GCOL = { izq: '#a50f15', der: '#08519c', na: '#737373' };
 const kv = rows => `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
-export const TABS = [['resultados', 'Resultados'], ['resumen', 'Resumen'], ['cruce', 'Cruce']];   // menú lateral
+export const TABS = [['resultados', 'Resultados'], ['resumen', 'Resumen']];   // menú lateral
 export const tabsHtml = cur => TABS.map(([k, l]) => `<button data-tab="${k}" class="${k === cur ? 'on' : ''}">${l}</button>`).join('');
 
 export function warnings(S) {
@@ -106,4 +106,3 @@ export function toolPanel(S, store, f) {
   const body = !S.muni || S.muni.small || !f ? '<p class="mut">Elige un municipio con mapa para usar esta herramienta.</p>' : { ideologia: () => grupos(S, store), fortaleza: () => fortaleza(S, f), suma: () => agregacion(S) }[S.tool]();
   return tool(S, S.tool, title, body);
 }
-export const cruce = () => '<h2>Cruce</h2><p class="mut">Este apartado se incorporará próximamente.</p>';

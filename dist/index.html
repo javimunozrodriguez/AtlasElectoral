@@ -36,7 +36,7 @@ details{margin:6px 0}summary{cursor:pointer}.scroll{max-height:160px;overflow:au
 /* --- navegación principal, agrupaciones y D'Hondt --- */
 .main-nav{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.main-nav button{border:0;background:none;padding:6px 14px;font:inherit;color:var(--mut);cursor:pointer}
 body[data-view=mapa] .main-nav [data-view=mapa],body[data-view=concejales] .main-nav [data-view=concejales]{background:var(--acc);color:#fff}
-body[data-view=concejales] #mode,body[data-view=concejales] #cand,body[data-view=concejales] .chk{display:none}
+body:not([data-view=mapa]) #mode,body:not([data-view=mapa]) #cand,body:not([data-view=mapa]) .chk{display:none}
 .grp th.c,.grp td.c{text-align:center;font-size:11px;width:68px}.grp td.c{padding:3px 0}.seg button{padding:5px 10px}p.seg{display:flex;flex-wrap:wrap;gap:6px;border:0}p.seg button{border:1px solid var(--line);border-radius:8px;background:none;color:var(--ink);cursor:pointer;font:inherit}
 #dh{flex:1;overflow:auto;padding:18px 22px;max-width:1180px;width:100%;margin:0 auto}#dh[hidden]{display:none}main[hidden]{display:none}
 .dh-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px}.dh-head label{display:flex;gap:8px;align-items:center;color:var(--mut)}
@@ -70,18 +70,39 @@ tr.me td,tr.me th{background:color-mix(in srgb,var(--acc) 10%,transparent)}.up{c
 main{min-height:240px}
 @media (max-width:900px){
   html,body{height:auto}body{min-height:100vh}main{flex:none;grid-template-rows:minmax(280px,46vh) auto}#panel{max-height:55vh}
-  #toolbar{position:sticky;bottom:0}#toolnav{gap:5px;padding:6px 8px}#toolnav button{padding:9px 2px;font-size:13px;letter-spacing:0}#toolbody{max-height:48vh;padding:4px 10px 10px}
+  #toolnav{gap:5px;padding:6px 8px}#toolnav button{padding:9px 2px;font-size:13px;letter-spacing:0}#toolbody{max-height:48vh;padding:4px 10px 10px}
 }
+
+/* --- v5: navegación principal (Mapa · Concejales · Cruce) y mapa con límites propios --- */
+.main-nav{display:flex;gap:4px;padding:6px 14px 0;border:0;border-bottom:1px solid var(--line);border-radius:0;overflow:visible;background:var(--bg);flex:none}
+.main-nav button{padding:9px 26px;font-weight:700;border-radius:10px 10px 0 0;border:1px solid transparent;border-bottom:0;color:var(--mut);cursor:pointer;font:inherit;font-weight:700}
+.main-nav button:hover{color:var(--ink)}
+body[data-view=mapa] .main-nav [data-view=mapa],body[data-view=concejales] .main-nav [data-view=concejales],body[data-view=cruce] .main-nav [data-view=cruce]{background:var(--acc);color:#fff}
+#map{position:relative;z-index:0;isolation:isolate;overflow:hidden;min-height:260px}   /* contiene los z-index de Leaflet: leyenda y atribución no pueden salirse del mapa */
+#toolbar{position:relative;z-index:1}
+/* --- Cruce --- */
+#cx{flex:1;overflow:auto;padding:16px 20px 28px;max-width:1380px;width:100%;margin:0 auto}#cx[hidden]{display:none}
+.cx-presets{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}.chip{border:1px solid var(--line);border-radius:16px;padding:4px 11px;font:inherit;font-size:12.5px;cursor:pointer;background:var(--card);color:var(--ink)}
+.chip:hover{border-color:var(--acc)}.chip.off{opacity:.45;text-decoration:line-through}.chip i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.cx-grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}.cx-side .card{margin:0 0 14px}.cx-main .card{margin:0 0 12px}
+.cx-axes{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}.axis{flex:1;min-width:230px;border:1px solid var(--line);border-radius:10px;padding:6px 10px;display:flex;flex-direction:column;gap:6px}.axis legend{font-size:11px;color:var(--mut);padding:0 4px}
+.axis select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);max-width:100%}.swap{align-self:center;border:1px solid var(--line);background:var(--card);color:var(--acc);border-radius:50%;width:34px;height:34px;font-size:18px;cursor:pointer}
+.cx-chart{position:relative;padding:10px 12px}.cx-svg{width:100%;height:auto;display:block}.cx-svg text{fill:var(--mut);font-size:12px}.cx-svg .al{fill:var(--ink);font-weight:600}.cx-svg .grid{stroke:var(--line);stroke-width:1}.cx-svg .frame{fill:none;stroke:var(--line)}
+.cx-svg circle{fill-opacity:.72;stroke:#fff;stroke-width:.7;cursor:crosshair}.cx-svg circle:hover{fill-opacity:1;stroke:var(--ink);stroke-width:1.5}.cx-svg .reg{stroke:var(--ink);stroke-width:2;stroke-dasharray:6 4}
+.cxtip{position:absolute;pointer-events:none;background:#111e;color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;white-space:pre;z-index:5}.cxtip[hidden]{display:none}
+.cx-legend,.cx-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}.cx-empty{padding:60px 20px;text-align:center;color:var(--mut)}
+.eq{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--bg);padding:6px 10px;border-radius:8px;margin:8px 0}.def dt{font-weight:600;color:var(--ink);margin-top:6px}.def dd{text-align:left;color:var(--mut);margin:0}.def{display:block}
+@media (max-width:1000px){.cx-grid{grid-template-columns:1fr}}
+@media (max-width:900px){.main-nav{padding:6px 8px 0}.main-nav button{flex:1;padding:9px 6px}#cx{flex:none;padding:12px}}
 </style></head>
 <body data-view="mapa">
-<div id="stale" hidden style="background:#fff3cd;color:#664d03;padding:10px 14px;font:14px system-ui,sans-serif">⚠ La aplicación no se ha cargado completa: faltan archivos o los de la carpeta <b>js/</b> están desactualizados (debería verse «v4» junto al título). Sube la carpeta <b>js/</b> (y <b>css/</b>) al repositorio y recarga con Ctrl+Shift+R.</div>
+<div id="stale" hidden style="background:#fff3cd;color:#664d03;padding:10px 14px;font:14px system-ui,sans-serif">⚠ La aplicación no se ha cargado completa: faltan archivos o los de la carpeta <b>js/</b> están desactualizados (debería verse «v5» junto al título). Sube la carpeta <b>js/</b> (y <b>css/</b>) al repositorio y recarga con Ctrl+Shift+R.</div>
 <script>
 function staleShow(m){var s=document.getElementById('stale');s.hidden=false;if(m)s.insertAdjacentHTML('beforeend','<br><small>Detalle técnico: '+String(m).replace(/</g,'&lt;')+'</small>');}
 window.addEventListener('error',function(e){staleShow(e.message)});window.addEventListener('unhandledrejection',function(e){staleShow(e.reason&&e.reason.message||e.reason)});
 setTimeout(function(){var v=document.querySelector('.ver');if(!v||!v.textContent)staleShow();},4000);</script>
 <header>
   <div class="brand">Atlas electoral <small class="ver"></small></div>
-  <nav class="main-nav"><button data-view="mapa">Mapa</button><button data-view="concejales">Concejales</button></nav>
   <select id="elec" title="Elección"></select>
   <div class="search"><input id="q" type="search" placeholder="Buscar municipio…" autocomplete="off"><ul id="results" hidden></ul></div>
   <select id="mode" title="Modalidad de mapa">
@@ -92,8 +113,10 @@ setTimeout(function(){var v=document.querySelector('.ver');if(!v||!v.textContent
   <select id="cand" title="Candidatura"></select>
   <label class="chk"><input type="checkbox" id="base" checked> Mapa base</label>
 </header>
+<nav class="main-nav" aria-label="Secciones principales"><button data-view="mapa">Mapa</button><button data-view="concejales">Concejales</button><button data-view="cruce">Cruce</button></nav>
 <main><div id="map"></div><aside><nav id="tabs"></nav><div id="panel"></div></aside></main>
 <section id="dh" hidden></section>
+<section id="cx" hidden></section>
 <footer id="toolbar"><nav id="toolnav" aria-label="Herramientas de análisis territorial"></nav><div id="toolbody" hidden></div></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
@@ -242,6 +265,7 @@ let map, layer, legend, base;
 function init(id) {
   map = L.map(id, { zoomControl: true, preferCanvas: true }).setView([40.2, -3.7], 6);
   base = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, opacity: .55, attribution: '© OpenStreetMap' }).addTo(map);
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => map.invalidateSize()).observe(document.getElementById(id));   // contenedor con límites propios
   legend = L.control({ position: 'bottomleft' });
   legend.onAdd = () => { const d = L.DomUtil.create('div', 'legend'); d.hidden = true; legend._d = d; return d; };
   legend.addTo(map);
@@ -278,7 +302,7 @@ const p2 = v => v == null ? '—' : v.toLocaleString('es-ES', { minimumFractionD
 const secLabel = id => `Distrito ${id.slice(5, 7)} - Sección ${id.slice(7, 10)}`;
 const GCOL = { izq: '#a50f15', der: '#08519c', na: '#737373' };
 const kv = rows => `<dl>${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
-const TABS = [['resultados', 'Resultados'], ['resumen', 'Resumen'], ['cruce', 'Cruce']];   // menú lateral
+const TABS = [['resultados', 'Resultados'], ['resumen', 'Resumen']];   // menú lateral
 const tabsHtml = cur => TABS.map(([k, l]) => `<button data-tab="${k}" class="${k === cur ? 'on' : ''}">${l}</button>`).join('');
 
 function warnings(S) {
@@ -375,9 +399,8 @@ function toolPanel(S, store, f) {
   const body = !S.muni || S.muni.small || !f ? '<p class="mut">Elige un municipio con mapa para usar esta herramienta.</p>' : { ideologia: () => grupos(S, store), fortaleza: () => fortaleza(S, f), suma: () => agregacion(S) }[S.tool]();
   return tool(S, S.tool, title, body);
 }
-const cruce = () => '<h2>Cruce</h2><p class="mut">Este apartado se incorporará próximamente.</p>';
 
-return {esc, n0, p1, p2, secLabel, TABS, tabsHtml, warnings, resumen, resultados, agregacion, fortaleza, popup, CAT_TXT, grupos, INFO, tool, TOOLS, toolNav, toolPanel, cruce};
+return {esc, n0, p1, p2, secLabel, TABS, tabsHtml, warnings, resumen, resultados, agregacion, fortaleza, popup, CAT_TXT, grupos, INFO, tool, TOOLS, toolNav, toolPanel};
 })();
 const NS_dhondt_view = (() => {
 // Apartado D'Hondt: construye el HTML a partir de js/dhondt.js. Datos oficiales del municipio (ficheros 05/06).
@@ -428,15 +451,190 @@ function html(S) {
 
 return {needed, html};
 })();
+const NS_cruce = (() => {
+// Cruce: variables por sección censal, filtros y estadística (regresión lineal, Pearson, Spearman). Funciones puras, sin DOM.
+// Una sección es s = [censo_escrutinio, blancos, nulos, votosCandidaturas, {codCandidatura: votos}] (ver calc.js).
+const { totals, votesOf, sumSections } = NS_calc;
+const { classify } = NS_strength;
+
+const WIN_NONE = '_';   // clave para «sin candidatura ganadora única» / «sin agrupación líder»
+const KINDS = [['censo', 'Censo electoral (electores)'], ['votantes', 'Votantes'], ['part', 'Participación (%)'], ['abst', 'Abstención (%)'], ['abstn', 'Abstenciones (n.º)'],
+  ['validos', 'Votos válidos'], ['blancos', 'Votos en blanco'], ['nulos', 'Votos nulos'], ['cand', 'Candidatura'], ['suma', 'Suma (candidaturas marcadas)'], ['grupo', 'Ideología (grupo)']];
+const MEASURES = { cands: [['votos', 'Votos'], ['pct', '% de voto s/ válidos'], ['idx', 'Índice de fortaleza'], ['peso', 'Peso de la sección en el voto municipal (%)']], bn: [['abs', 'Valor absoluto'], ['pct', 'Porcentaje']] };
+const hasMeasure = k => k === 'blancos' || k === 'nulos' ? 'bn' : ['cand', 'suma', 'grupo'].includes(k) ? 'cands' : null;
+
+function makeCtx({ secs, cands, off, sel, groupOf, groups }) {
+  const base = sumSections(secs), offCods = Object.keys(off || {}), gm = {};
+  return { secs, cands, offCods, groups, groupOf, base, BV: base[3] + base[1], sel: [...sel].filter(c => offCods.includes(c)),
+    codsOfGroup: g => gm[g] ??= offCods.filter(c => groupOf(cands[c]) === g),
+    candList: offCods.map(c => ({ cod: c, siglas: cands[c] || c, votos: off[c][0] })).sort((a, b) => b.votos - a.votos || a.siglas.localeCompare(b.siglas)),
+    groupName: g => groups.find(x => x.id === g)?.name || g };
+}
+
+// Eje: { label, unit ('n' | '%' | 'idx'), fn(s, t) -> número | null, note? }. null = dato ausente (NUNCA se sustituye por 0).
+function axis(spec, ctx) {
+  const { kind, measure } = spec, pctOf = (v, d) => d > 0 ? v / d * 100 : null;
+  const simple = { censo: ['Censo electoral', 'n', t => t.censo], votantes: ['Votantes', 'n', t => t.emitidos], part: ['Participación (%)', '%', t => t.part],
+    abst: ['Abstención (%)', '%', t => t.censo > 0 ? (t.censo - t.emitidos) / t.censo * 100 : null], abstn: ['Abstenciones (n.º)', 'n', t => t.censo > 0 ? t.censo - t.emitidos : null], validos: ['Votos válidos', 'n', t => t.validos] };
+  if (simple[kind]) { const [label, unit, f] = simple[kind]; return { label, unit, fn: (s, t) => f(t) }; }
+  if (kind === 'blancos') return measure === 'pct' ? { label: 'Votos en blanco (% s/ válidos)', unit: '%', fn: (s, t) => pctOf(t.blancos, t.validos) } : { label: 'Votos en blanco', unit: 'n', fn: (s, t) => t.blancos };
+  if (kind === 'nulos') return measure === 'pct' ? { label: 'Votos nulos (% s/ emitidos)', unit: '%', fn: (s, t) => pctOf(t.nulos, t.emitidos) } : { label: 'Votos nulos', unit: 'n', fn: (s, t) => t.nulos };
+  const cods = kind === 'cand' ? [spec.cod] : kind === 'suma' ? ctx.sel : ctx.codsOfGroup(spec.group);
+  const name = kind === 'cand' ? (ctx.cands[spec.cod] || spec.cod) : kind === 'suma' ? 'Suma (' + (cods.map(c => ctx.cands[c]).join(' + ') || 'sin candidaturas') + ')' : 'Ideología: ' + ctx.groupName(spec.group);
+  const ml = { votos: 'Votos', pct: '% de voto', idx: 'Índice de fortaleza', peso: 'Peso en el voto municipal (%)' }[measure] || 'Votos', unit = { votos: 'n', pct: '%', idx: 'idx', peso: '%' }[measure] || 'n', label = `${ml} · ${name}`;
+  if (!cods.length) return { label, unit, fn: () => null, note: kind === 'suma' ? 'La herramienta Suma no tiene candidaturas marcadas.' : kind === 'grupo' ? `La agrupación «${ctx.groupName(spec.group)}» no tiene candidaturas asignadas en este municipio (asígnalas en Ideología).` : 'Candidatura no disponible.' };
+  const V = votesOf(ctx.base, cods), BV = ctx.BV;
+  const fn = { votos: s => votesOf(s, cods), pct: (s, t) => pctOf(votesOf(s, cods), t.validos), idx: (s, t) => classify(votesOf(s, cods), t.validos, V, BV).idx, peso: s => V > 0 ? votesOf(s, cods) / V * 100 : null }[measure] || (s => votesOf(s, cods));
+  return { label, unit, fn };
+}
+
+function winnerOf(s, cods) {   // candidatura con más votos en la sección; null si hay empate o ninguna tiene votos
+  let best = 0, w = null, tie = false;
+  for (const c of cods) { const v = s[4][c] || 0; if (v > best) { best = v; w = c; tie = false; } else if (v === best && v > 0) tie = true; }
+  return best > 0 && !tie ? w : null;
+}
+function leaderGroup(s, ctx) {   // agrupación (definida por el usuario) con más votos; null si no hay asignaciones o hay empate
+  let best = 0, g = null, tie = false;
+  for (const { id } of ctx.groups) { const v = votesOf(s, ctx.codsOfGroup(id)); if (v > best) { best = v; g = id; tie = false; } else if (v === best && v > 0) tie = true; }
+  return best > 0 && !tie ? g : null;
+}
+
+// ---- Estadística
+function ranks(a) {   // rangos con empates promediados
+  const idx = a.map((v, i) => i).sort((i, j) => a[i] - a[j]), r = new Array(a.length);
+  for (let i = 0; i < idx.length;) { let j = i; while (j + 1 < idx.length && a[idx[j + 1]] === a[idx[i]]) j++; const avg = (i + j) / 2 + 1; for (let k = i; k <= j; k++) r[idx[k]] = avg; i = j + 1; }
+  return r;
+}
+function sums(xs, ys) {   // dos pasadas: medias y sumas de cuadrados centradas
+  const n = xs.length; let mx = 0, my = 0; for (let i = 0; i < n; i++) { mx += xs[i]; my += ys[i]; } mx /= n; my /= n;
+  let sxx = 0, syy = 0, sxy = 0; for (let i = 0; i < n; i++) { const dx = xs[i] - mx, dy = ys[i] - my; sxx += dx * dx; syy += dy * dy; sxy += dx * dy; }
+  return { n, mx, my, sxx, syy, sxy };
+}
+function regression(xs, ys) {
+  const n = xs.length; if (n < 3) return { n, ok: false, warn: `Solo hay ${n} sección(es) con valor válido en las dos variables: se necesitan al menos 3 para calcular la regresión.` };
+  const q = sums(xs, ys); if (q.sxx === 0) return { n, ok: false, warn: 'La variable X no varía (todas las secciones tienen el mismo valor): no se puede calcular la recta.' };
+  const slope = q.sxy / q.sxx, intercept = q.my - slope * q.mx;
+  if (q.syy === 0) return { n, ok: true, slope, intercept, r: null, r2: null, warn: 'La variable Y no varía: la recta es horizontal y no se puede calcular la correlación.', caution: n < 10 };
+  const r = Math.max(-1, Math.min(1, q.sxy / Math.sqrt(q.sxx * q.syy)));
+  return { n, ok: true, slope, intercept, r, r2: r * r, caution: n < 10 };   // r = Sxy/√(Sxx·Syy); R² = r²; pendiente = Sxy/Sxx; ordenada = ȳ − pendiente·x̄
+}
+function spearman(xs, ys) {   // Pearson sobre los rangos (con empates promediados)
+  if (xs.length < 3) return { ok: false };
+  const q = sums(ranks(xs), ranks(ys)); if (q.sxx === 0 || q.syy === 0) return { ok: false, warn: 'Spearman no se puede calcular porque una de las variables no varía.' };
+  return { ok: true, rho: Math.max(-1, Math.min(1, q.sxy / Math.sqrt(q.sxx * q.syy))) };
+}
+
+// ---- Conjunto de datos del gráfico: aplica filtros y descarta (sin rellenar) las secciones sin dato en alguna variable
+function dataset(ctx, cx) {
+  const ax = axis(cx.x, ctx), ay = axis(cx.y, ctx), cods = ctx.offCods, points = [], excl = { incompleta: 0, filtro: 0, ausentes: 0 }, winCounts = new Map(), grpCounts = new Map();
+  let total = 0, mayor100 = 0;
+  for (const [id, s] of Object.entries(ctx.secs)) {
+    total++; const t = totals(s); if (t.censo > 0 && t.emitidos > t.censo) mayor100++;
+    if (cx.excl && (t.censo <= 0 || t.validos <= 0)) { excl.incompleta++; continue; }
+    const w = winnerOf(s, cods) || WIN_NONE, g = leaderGroup(s, ctx) || WIN_NONE;
+    winCounts.set(w, (winCounts.get(w) || 0) + 1); grpCounts.set(g, (grpCounts.get(g) || 0) + 1);
+    if ((cx.win && !cx.win.has(w)) || (cx.grp && !cx.grp.has(g))) { excl.filtro++; continue; }
+    const x = ax.fn(s, t), y = ay.fn(s, t);
+    if (x == null || y == null || !Number.isFinite(x) || !Number.isFinite(y)) { excl.ausentes++; continue; }
+    points.push({ id, x, y, w });
+  }
+  const xs = points.map(p => p.x), ys = points.map(p => p.y);
+  return { ax, ay, points, excl, total, mayor100, winCounts, grpCounts, reg: regression(xs, ys), sp: spearman(xs, ys) };
+}
+
+// ---- Cruces sugeridos (accesos rápidos; el usuario puede modificarlos después)
+function presets(ctx, c1) {
+  const L = ctx.candList, a = L.find(c => c.cod === c1) || L[0], b = L.find(c => c.cod !== a?.cod), g1 = a ? ctx.groupOf(a.siglas) : null;
+  const firstG = ctx.groups.find(g => ctx.codsOfGroup(g.id).length)?.id || ctx.groups[0].id;
+  const cand = (c, m) => ({ kind: 'cand', cod: c.cod, measure: m }), pg = (g, m) => ({ kind: 'grupo', group: g, measure: m });
+  if (!a) return [];
+  return [
+    { id: 'part-cand', label: 'Participación y % de voto de una candidatura', x: { kind: 'part' }, y: cand(a, 'pct') },
+    { id: 'part-grupo', label: 'Participación y % de una agrupación de Ideología', x: { kind: 'part' }, y: pg(firstG, 'pct') },
+    { id: 'part-idx', label: 'Participación e índice de fortaleza', x: { kind: 'part' }, y: cand(a, 'idx') },
+    { id: 'cand-cand', label: '% de una candidatura y % de otra', x: cand(a, 'pct'), y: b ? cand(b, 'pct') : cand(a, 'pct') },
+    { id: 'cand-grupo', label: '% de una candidatura y % de su agrupación', x: cand(a, 'pct'), y: pg(g1 || firstG, 'pct'), warn: g1 ? '' : `«${a.siglas}» no está asignada a ninguna agrupación: asígnala en Ideología para que este cruce tenga sentido.` },
+    { id: 'censo-part', label: 'Censo electoral y participación', x: { kind: 'censo' }, y: { kind: 'part' } },
+    { id: 'peso-pct', label: 'Peso de la sección en el voto de una candidatura y su % de voto', x: cand(a, 'peso'), y: cand(a, 'pct') },
+  ];
+}
+
+return {WIN_NONE, KINDS, MEASURES, hasMeasure, makeCtx, axis, winnerOf, leaderGroup, ranks, regression, spearman, dataset, presets};
+})();
+const NS_cruce_view = (() => {
+// Apartado Cruce: HTML + gráfico de dispersión en SVG (sin librerías). Recibe los datos ya calculados por js/cruce.js.
+const { KINDS, MEASURES, hasMeasure, WIN_NONE } = NS_cruce;
+const { esc, n0, secLabel } = NS_ui;
+const f = (v, d = 2) => v.toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d }), sig = v => v.toLocaleString('es-ES', { maximumSignificantDigits: 5 });
+const val = (v, u) => u === 'n' ? n0(v) : u === '%' ? f(v, 2) + ' %' : f(v, 3);
+const PAL = ['#1f77b4', '#d62728', '#2ca02c', '#ff7f0e', '#9467bd', '#8c564b', '#e377c2', '#17becf', '#bcbd22', '#6a3d9a'], GREY = '#9aa6b6';
+const niceStep = (range, n) => { const raw = range / n, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p; };
+const ticks = (lo, hi, n = 5) => { const step = niceStep(hi - lo, n), t = []; for (let v = Math.ceil(lo / step - 1e-9) * step; v <= hi + 1e-9; v += step) t.push(+v.toFixed(12)); return { t, step }; };
+const tf = (v, step) => v.toLocaleString('es-ES', { maximumFractionDigits: Math.max(0, -Math.floor(Math.log10(step))) });
+const dom = a => { let lo = Math.min(...a), hi = Math.max(...a); const pad = hi === lo ? (Math.abs(lo) * 0.05 || 1) : (hi - lo) * 0.05; return [lo - pad, hi + pad]; };
+
+function chart(D, color) {
+  const W = 720, H = 440, m = { l: 74, r: 22, t: 14, b: 58 }, pw = W - m.l - m.r, ph = H - m.t - m.b, P = D.points;
+  if (!P.length) return '<div class="cx-empty">No hay secciones con datos válidos para estas dos variables y estos filtros.</div>';
+  const [x0, x1] = dom(P.map(p => p.x)), [y0, y1] = dom(P.map(p => p.y)), sx = v => m.l + (v - x0) / (x1 - x0) * pw, sy = v => m.t + ph - (v - y0) / (y1 - y0) * ph;
+  const tx = ticks(x0, x1), ty = ticks(y0, y1), r = D.reg, fs = l => l.length > 52 ? 10.5 : 12;
+  const line = r.ok ? `<line x1="${sx(x0).toFixed(1)}" y1="${sy(r.intercept + r.slope * x0).toFixed(1)}" x2="${sx(x1).toFixed(1)}" y2="${sy(r.intercept + r.slope * x1).toFixed(1)}" class="reg" clip-path="url(#cxclip)"/>` : '';
+  return `<svg class="cx-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfico de dispersión: ${esc(D.ay.label)} frente a ${esc(D.ax.label)}"><defs><clipPath id="cxclip"><rect x="${m.l}" y="${m.t}" width="${pw}" height="${ph}"/></clipPath></defs>
+  ${tx.t.map(v => `<line x1="${sx(v).toFixed(1)}" y1="${m.t}" x2="${sx(v).toFixed(1)}" y2="${m.t + ph}" class="grid"/><text x="${sx(v).toFixed(1)}" y="${m.t + ph + 18}" text-anchor="middle">${tf(v, tx.step)}</text>`).join('')}
+  ${ty.t.map(v => `<line x1="${m.l}" y1="${sy(v).toFixed(1)}" x2="${m.l + pw}" y2="${sy(v).toFixed(1)}" class="grid"/><text x="${m.l - 8}" y="${(sy(v) + 4).toFixed(1)}" text-anchor="end">${tf(v, ty.step)}</text>`).join('')}
+  <rect x="${m.l}" y="${m.t}" width="${pw}" height="${ph}" class="frame"/>
+  <g clip-path="url(#cxclip)">${P.map((p, i) => `<circle cx="${sx(p.x).toFixed(1)}" cy="${sy(p.y).toFixed(1)}" r="4.2" fill="${color(p.w)}" data-pt="${i}" data-tip="${esc(`${secLabel(p.id)}\n${D.ax.label}: ${val(p.x, D.ax.unit)}\n${D.ay.label}: ${val(p.y, D.ay.unit)}`)}"/>`).join('')}</g>${line}
+  <text x="${m.l + pw / 2}" y="${H - 12}" text-anchor="middle" class="al" style="font-size:${fs(D.ax.label)}px">${esc(D.ax.label)}</text>
+  <text transform="rotate(-90 18 ${m.t + ph / 2})" x="18" y="${m.t + ph / 2}" text-anchor="middle" class="al" style="font-size:${fs(D.ay.label)}px">${esc(D.ay.label)}</text></svg>`;
+}
+const axisCtl = (key, sp, ctx, S) => { const cm = hasMeasure(sp.kind);
+  return `<fieldset class="axis"><legend>Eje ${key.toUpperCase()}</legend><select data-ax="${key}" data-f="kind" aria-label="Variable del eje ${key.toUpperCase()}">${KINDS.map(([k, l]) => `<option value="${k}" ${k === sp.kind ? 'selected' : ''}>${l}</option>`).join('')}</select>
+  ${sp.kind === 'cand' ? `<select data-ax="${key}" data-f="cod">${ctx.candList.map(c => `<option value="${c.cod}" ${c.cod === sp.cod ? 'selected' : ''}>${esc(c.siglas)}</option>`).join('')}</select>` : ''}
+  ${sp.kind === 'grupo' ? `<select data-ax="${key}" data-f="group">${ctx.groups.map(g => `<option value="${g.id}" ${g.id === sp.group ? 'selected' : ''}>${esc(g.name)}</option>`).join('')}</select>` : ''}
+  ${sp.kind === 'suma' ? `<span class="mut">${esc(ctx.sel.map(c => ctx.cands[c]).join(' + ') || 'ninguna marcada')} (se cambia en Suma)</span>` : ''}
+  ${cm ? `<select data-ax="${key}" data-f="measure">${MEASURES[cm].map(([k, l]) => `<option value="${k}" ${k === sp.measure ? 'selected' : ''}>${l}</option>`).join('')}</select>` : ''}</fieldset>`; };
+
+function html(S, ctx, D, cx) {
+  const wk = [...D.winCounts.entries()].sort((a, b) => b[1] - a[1]), cmap = {}; wk.filter(([k]) => k !== WIN_NONE).forEach(([k], i) => cmap[k] = i < PAL.length ? PAL[i] : GREY);
+  const color = k => cmap[k] || GREY, on = (set, k) => !set || set.has(k), r = D.reg, sp = D.sp;
+  const chip = (attr, k, label, n, c, set) => `<button class="chip ${on(set, k) ? '' : 'off'}" data-${attr}="${esc(k)}" aria-pressed="${on(set, k)}"><i style="background:${c}"></i>${esc(label)} <span class="mut">${n}</span></button>`;
+  const grp = [...ctx.groups.map(g => [g.id, g.name]), [WIN_NONE, 'Sin agrupación líder']].filter(([k]) => D.grpCounts.has(k) || k !== WIN_NONE);
+  const warns = [D.ax.note, D.ay.note, cx.note, r.warn, sp.warn, r.caution ? 'Con menos de 10 secciones, los indicadores son poco fiables.' : '', D.mayor100 ? `${D.mayor100} sección(es) tienen más votantes que censo en los datos originales (participación > 100 %); se mantienen tal cual.` : ''].filter(Boolean);
+  const stat = (k, v, txt) => `<dt>${k}</dt><dd><b data-stat="${k}" data-v="${v}">${txt}</b></dd>`;
+  return `<div class="cx-head"><h2>${esc(S.muni.n)}</h2><p class="sub">Cruce · relaciones entre variables de las secciones censales · ${esc(S.provName)}</p></div>
+  <div class="cx-presets"><span class="mut">Cruces sugeridos:</span>${ctx.presetList.map(p => `<button class="chip" data-preset="${p.id}">${p.label}</button>`).join('')}</div>
+  <div class="cx-grid"><div class="cx-main">
+    <section class="card cx-axes">${axisCtl('x', cx.x, ctx, S)}<button class="swap" data-swap title="Intercambiar ejes" aria-label="Intercambiar ejes">⇄</button>${axisCtl('y', cx.y, ctx, S)}</section>
+    <section class="card cx-chart" id="cxChart">${chart(D, color)}<div id="cxTip" class="cxtip" hidden></div>
+      <div class="cx-legend"><span class="mut">Color = candidatura ganadora en la sección (pulsa para incluir o excluir):</span>${wk.map(([k, n]) => chip('win', k, k === WIN_NONE ? 'Sin ganadora única' : ctx.cands[k] || k, n, color(k), cx.win)).join('')}</div></section>
+    <p class="warn cx-warn"><b>Atención:</b> Los datos representan secciones censales, no personas individuales. Una relación estadística entre variables agregadas no demuestra que exista esa misma relación a nivel individual. Debe evitarse la falacia ecológica.</p>
+  </div><aside class="cx-side">
+    <section class="card"><h3>Análisis estadístico</h3>${r.ok ? `<dl>${stat('n', r.n, n0(r.n))}${stat('pendiente', r.slope, sig(r.slope))}${stat('ordenada', r.intercept, sig(r.intercept))}${r.r == null ? '' : stat('r', r.r, f(r.r, 3)) + stat('R²', r.r2, f(r.r2, 3))}${sp.ok ? stat('Spearman ρ', sp.rho, f(sp.rho, 3)) : ''}</dl>
+      <p class="eq">Y = ${sig(r.intercept)} ${r.slope < 0 ? '−' : '+'} ${sig(Math.abs(r.slope))}·X</p>` : `<dl>${stat('n', r.n, n0(r.n))}</dl>`}
+      ${warns.map(w => `<p class="warn">⚠ ${esc(w)}</p>`).join('')}
+      <p class="mut">Secciones del municipio: ${n0(D.total)} · incluidas: ${n0(D.points.length)} · sin dato en alguna variable: ${n0(D.excl.ausentes)} · excluidas por filtros: ${n0(D.excl.filtro)} · incompletas excluidas: ${n0(D.excl.incompleta)}.</p></section>
+    <section class="card"><h3>Filtros</h3><label class="chk"><input type="checkbox" data-flt="incomplete" ${cx.excl ? 'checked' : ''}> Excluir secciones con datos incompletos (sin censo o sin votos válidos)</label>
+      <p class="mut" style="margin:8px 0 4px">Agrupación líder en la sección (según tu Ideología):</p><div class="cx-chips">${grp.map(([k, l]) => chip('grp', k, l, D.grpCounts.get(k) || 0, k === WIN_NONE ? GREY : '#54278f', cx.grp)).join('')}</div>
+      <button class="link" data-resetf>Restablecer filtros</button></section>
+    <section class="card"><h3>Qué significa cada indicador</h3><dl class="def"><dt>n</dt><dd>Secciones con valor en las dos variables. Las que no tienen dato se descartan; nunca se rellenan con ceros.</dd>
+      <dt>Pendiente</dt><dd>Cuánto cambia Y, de media, por cada unidad que aumenta X (si ambas son porcentajes, puntos de Y por cada punto de X).</dd>
+      <dt>r de Pearson</dt><dd>De −1 a 1: intensidad y sentido de la relación lineal. Cerca de 0, poca relación lineal; positivo, ambas suben juntas; negativo, una sube cuando la otra baja.</dd>
+      <dt>R²</dt><dd>Parte de la variación de Y que explica la recta (r al cuadrado, de 0 a 1).</dd>
+      <dt>Spearman ρ</dt><dd>Como r, pero sobre los puestos de cada sección: capta relaciones en un mismo sentido aunque no sean una recta y le afectan menos los valores extremos.</dd></dl>
+      <p class="mut">Una correlación no demuestra causalidad.</p></section></aside></div>`;
+}
+
+return {html};
+})();
 const NS_main = (() => {
 // Orquestación: estado, selección de municipio, modalidades de mapa y paneles.
-const D = NS_data; const C = NS_calc; const { classify } = NS_strength; const M = NS_map; const U = NS_ui; const { createStore } = NS_store; const H = NS_dhondt_view;
+const D = NS_data; const C = NS_calc; const { classify } = NS_strength; const M = NS_map; const U = NS_ui; const { createStore } = NS_store; const H = NS_dhondt_view; const X = NS_cruce; const XV = NS_cruce_view;
 const $ = s => document.querySelector(s);
 const BLUES = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'], GREENS = ['#edf8e9', '#bae4b3', '#74c476', '#31a354', '#006d2c'], PURPLES = ['#f2f0f7', '#cbc9e2', '#9e9ac8', '#756bb1', '#54278f'], REDS = ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15'], GREYS = ['#f7f7f7', '#d9d9d9', '#bdbdbd', '#737373', '#252525'];
 const GRAMP = { izq: REDS, der: BLUES, na: GREYS }, isG = m => m.startsWith('g:');
 const RAMP = { participacion: GREENS, votos: BLUES, pct: BLUES, agregado: PURPLES };
 const CATCOL = { fuerte: '#0b4f9c', medio: '#7fb2de', debil: '#dbe9f6', sin: '#d9d9d9', na: '#d9d9d9' };
-const S = { election: null, index: [], cumun: null, muni: null, cands: {}, base: null, geo: [], provName: '', mode: 'participacion', cand: null, sel: new Set(), tab: 'resultados', tabs: 'abs', info: {}, tool: null, useAgg: false, val: null, view: null, names: {}, dh: { cod: null, extra: 0 }, page: 'mapa', store: null };
+const S = { election: null, index: [], cumun: null, muni: null, cands: {}, base: null, geo: [], provName: '', mode: 'participacion', cand: null, sel: new Set(), tab: 'resultados', tabs: 'abs', info: {}, tool: null, useAgg: false, val: null, view: null, names: {}, dh: { cod: null, extra: 0 }, page: 'mapa', store: null, cx: { x: { kind: 'part' }, y: { kind: 'part' }, excl: true, win: null, grp: null, note: '' } };
 const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const TOOL_ID = m => isG(m) ? 'ideologia' : m === 'agregado' ? 'suma' : m === 'fortaleza' ? 'fortaleza' : null;
 const groupCods = g => Object.keys(S.muni.off || {}).filter(c => S.store.groupOf(S.cands[c]) === g);
@@ -488,8 +686,7 @@ function fstats() {
 }
 function render() {
   const p = $('#panel'), top = p.scrollTop; $('#tabs').innerHTML = U.tabsHtml(S.tab);
-  if (S.tab === 'cruce') p.innerHTML = U.cruce();
-  else if (!S.muni) p.innerHTML = '<p class="mut">Busca un municipio para ver sus resultados.</p>';
+  if (!S.muni) p.innerHTML = '<p class="mut">Busca un municipio para ver sus resultados.</p>';
   else if (S.muni.small || S.tab === 'resumen') p.innerHTML = U.resumen(S);
   else p.innerHTML = U.resultados(S);
   p.scrollTop = top;   // al repintar no se pierde la posición de desplazamiento
@@ -513,7 +710,7 @@ function refresh(redraw) {
   if (redraw) M.draw(S.geo, styleFn, id => U.secLabel(id) + ' · ' + (S.geoNr.has(id) ? 'sin resultados' : valText(id)), popFn); else M.restyle(styleFn);
   render();
 }
-async function selectMuni(cumun) { await selectMuni0(cumun); renderDh(); }
+async function selectMuni(cumun) { await selectMuni0(cumun); renderDh(); renderCx(); }
 async function selectMuni0(cumun) {
   const e = S.index.find(x => x[0] === cumun); S.cumun = cumun; S.provName = e[2]; $('#q').value = e[1] + ' (' + e[2] + ')'; $('#results').hidden = true;
   S.muni = null; S.geo = []; M.clear();
@@ -525,20 +722,38 @@ async function selectMuni0(cumun) {
   S.base = C.sumSections(S.muni.s);
   const rows = C.resultRows(S.muni, S.cands); S.cand = rows[0]?.cod; S.sel = new Set(S.cand ? [S.cand] : []);
   $('#cand').innerHTML = rows.map(r => `<option value="${r.cod}">${U.esc(r.siglas)} (${U.n0(r.votos)})</option>`).join('');
-  S.dh = { cod: S.cand, extra: 0 }; S.tab = 'resultados'; refresh(true);
+  S.dh = { cod: S.cand, extra: 0 }; initCx(); S.tab = 'resultados'; refresh(true);
 }
 function search(q) {
   const box = $('#results'), n = norm(q.trim()); if (n.length < 2) { box.hidden = true; return; }
   const hits = S.index.filter(x => norm(x[1]).startsWith(n)).concat(S.index.filter(x => !norm(x[1]).startsWith(n) && norm(x[1]).includes(n))).slice(0, 12);
   box.innerHTML = hits.map(x => `<li data-m="${x[0]}">${U.esc(x[1])} <span>${U.esc(x[2])}${x[3] === 1 ? ' · sin mapa (<250 hab.)' : x[3] === 0 ? ' · sin resultados' : ''}</span></li>`).join('') || '<li class="mut">Sin coincidencias</li>'; box.hidden = false;
 }
+// ---- Cruce
+function cxCtx() { return X.makeCtx({ secs: S.muni.s, cands: S.cands, off: S.muni.off, sel: S.sel, groupOf: s => S.store.groupOf(s), groups: S.store.groups() }); }
+function initCx() {
+  S.cx = { x: { kind: 'part' }, y: { kind: 'part' }, excl: true, win: null, grp: null, note: '' };
+  if (S.muni && S.muni.off) { const p = X.presets(cxCtx(), S.cand)[0]; if (p) { S.cx.x = { ...p.x }; S.cx.y = { ...p.y }; } }
+}
+function cxFix(sp) {   // valores por defecto coherentes al cambiar de variable
+  const cm = X.hasMeasure(sp.kind);
+  if (sp.kind === 'cand' && !S.muni.off[sp.cod]) sp.cod = S.cand; if (sp.kind === 'grupo' && !sp.group) sp.group = 'izq';
+  if (cm) { if (!X.MEASURES[cm].some(m => m[0] === sp.measure)) sp.measure = cm === 'bn' ? 'abs' : 'pct'; } else delete sp.measure;
+}
+function toggleSet(cur, all, key) { const s = new Set(cur || all); s.has(key) ? s.delete(key) : s.add(key); return s.size === all.length ? null : s; }
+function renderCx() {
+  if (S.page !== 'cruce') return; const box = $('#cx'), top = box.scrollTop;
+  if (!S.muni || S.muni.small || !S.muni.off) box.innerHTML = '<p class="mut">Busca un municipio con resultados por sección para usar el Cruce.</p>';
+  else { const ctx = cxCtx(); ctx.presetList = X.presets(ctx, S.cand); box.innerHTML = XV.html(S, ctx, X.dataset(ctx, S.cx), S.cx); }
+  box.scrollTop = top;
+}
 function renderDh() { if (S.page === 'concejales') $('#dh').innerHTML = H.html(S); }
-function setPage(p) { S.page = p; $('main').hidden = p !== 'mapa'; $('#dh').hidden = p !== 'concejales'; $('#toolbar').hidden = p !== 'mapa'; document.body.dataset.view = p; if (p === 'mapa') { M.resize(); if (S.muni && !S.muni.small) refresh(true); } else renderDh(); }
+function setPage(p) { S.page = p; $('main').hidden = p !== 'mapa'; $('#dh').hidden = p !== 'concejales'; $('#cx').hidden = p !== 'cruce'; $('#toolbar').hidden = p !== 'mapa'; document.body.dataset.view = p; if (p === 'mapa') { M.resize(); if (S.muni && !S.muni.small) refresh(true); } else { renderDh(); renderCx(); } }
 async function loadElection(id) {
   S.election = id; S.index = await D.index(id); S.val = await D.validation(id); S.muni = null; S.cumun = null; M.clear(); render();
 }
 async function init() {
-  document.querySelector('.ver').textContent = 'v4';   // marca visible: confirma que se ha cargado el JavaScript nuevo
+  document.querySelector('.ver').textContent = 'v5';   // marca visible: confirma que se ha cargado el JavaScript nuevo
   if (location.protocol === 'file:') $('#panel').innerHTML = '<p class="warn">Abre la aplicación desde un servidor local: <code>python3 -m http.server</code> y visita http://localhost:8000</p>';
   S.store = createStore(); M.init('map'); const els = await D.elections(); $('#elec').innerHTML = els.map(e => `<option value="${e.id}">${e.label}</option>`).join('');
   $('#elec').onchange = e => loadElection(e.target.value); await loadElection(els[0].id);
@@ -548,6 +763,18 @@ async function init() {
   $('#mode').onchange = e => { S.mode = e.target.value; S.tab = S.mode === 'participacion' ? 'resumen' : 'resultados'; const t = TOOL_ID(S.mode); if (t) S.tool = t; refresh(false); $('#panel').scrollTop = 0; };
   $('#cand').onchange = e => { S.cand = e.target.value; refresh(false); };
   $('#base').onchange = e => M.toggleBase(e.target.checked);
+  $('#cx').onchange = e => { const d = e.target.dataset;
+    if (d.ax) { const sp = S.cx[d.ax]; sp[d.f] = e.target.value; if (d.f === 'kind') cxFix(sp); S.cx.note = ''; } else if (d.flt === 'incomplete') S.cx.excl = e.target.checked; renderCx(); };
+  $('#cx').onclick = e => { const c = e.target.closest.bind(e.target), ctx = cxCtx(), D = X.dataset(ctx, S.cx), pr = c('[data-preset]'), w = c('[data-win]'), g = c('[data-grp]');
+    if (pr) { const p = X.presets(ctx, S.cand).find(q => q.id === pr.dataset.preset); if (p) { S.cx.x = { ...p.x }; S.cx.y = { ...p.y }; S.cx.note = p.warn || ''; } }
+    if (w) S.cx.win = toggleSet(S.cx.win, [...D.winCounts.keys()], w.dataset.win);
+    if (g) S.cx.grp = toggleSet(S.cx.grp, [...ctx.groups.map(q => q.id), X.WIN_NONE], g.dataset.grp);
+    if (c('[data-swap]')) [S.cx.x, S.cx.y] = [S.cx.y, S.cx.x];
+    if (c('[data-resetf]')) { S.cx.excl = true; S.cx.win = null; S.cx.grp = null; }
+    renderCx(); };
+  $('#cx').onmouseover = $('#cx').onmousemove = e => { const c = e.target.closest('[data-tip]'), tip = $('#cxTip'); if (!c) { tip.hidden = true; return; }
+    tip.textContent = c.dataset.tip; tip.hidden = false; const r = $('#cxChart').getBoundingClientRect?.() || { left: 0, top: 0 }; tip.style.left = (e.clientX - r.left + 14) + 'px'; tip.style.top = (e.clientY - r.top + 14) + 'px'; };
+  $('#cx').onmouseout = () => { $('#cxTip').hidden = true; };
   $('#toolnav').onclick = e => { const b = e.target.closest('[data-tool]'); if (b) openTool(b.dataset.tool); };
   $('#tabs').onclick = e => { const b = e.target.closest('[data-tab]'); if (b) { S.tab = b.dataset.tab; render(); $('#panel').scrollTop = 0; } };
   $('#panel').onclick = $('#toolbody').onclick = e => { const b = e.target.closest('[data-tm]'); if (b) { S.tabs = b.dataset.tm; render(); } if (e.target.matches('[data-clear]')) { S.sel.clear(); refresh(false); } if (e.target.closest('[data-closetool]')) { S.tool = null; render(); } const inf = e.target.closest('[data-info]'); if (inf) { S.info[inf.dataset.info] = !S.info[inf.dataset.info]; render(); } const vm = e.target.closest('[data-viewmode]'); if (vm) { S.mode = vm.dataset.viewmode; $('#mode').value = S.mode; refresh(false); } const g = e.target.closest('[data-viewg]'); if (g) { S.mode = 'g:' + g.dataset.viewg; $('#mode').value = S.mode; refresh(false); } };

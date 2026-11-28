@@ -1,6 +1,6 @@
 // Apartado D'Hondt: construye el HTML a partir de js/dhondt.js. Datos oficiales del municipio (ficheros 05/06).
-import { distribute, simulate, votesNeeded, nextQuotient } from './dhondt.js?v=4';
-import { esc, n0, p2 } from './ui.js?v=4';
+import { distribute, simulate, votesNeeded, nextQuotient } from './dhondt.js?v=5';
+import { esc, n0, p2 } from './ui.js?v=5';
 const q1 = v => v.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const ctx = S => { const m = S.muni; return { cands: Object.entries(m.off || {}).map(([cod, [votos, conc]]) => ({ cod, votos, conc })).sort((a, b) => b.votos - a.votos), validos: m.t[3] + m.t[1], N: m.t[4] }; };
 export const needed = S => { const { cands, validos, N } = ctx(S); const r = votesNeeded(cands, validos, N, S.dh.cod); return r ? r.x : 0; };

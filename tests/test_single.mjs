@@ -10,12 +10,13 @@ const store = new Map(), ctx = { console, setTimeout, JSON, Math, Object, Array,
   L: { map: () => ({ setView() { return this; }, fitBounds() {}, removeLayer() {}, invalidateSize() {} }), tileLayer: () => ({ addTo() { return this; } }), control: () => ({ addTo() { this.onAdd(); return this; } }), DomUtil: { create: () => rec.legend },
     geoJSON: (fc, o) => { rec.layers = fc.features.map(f => { const l = { f, bindTooltip(fn) { this.tip = fn; }, bindPopup(fn) { this.pop = fn; }, on() {} }; o.onEachFeature(f, l); return l; }); return { addTo() { return this; }, getBounds() {}, resetStyle() {}, setStyle() {} }; } } };
 ctx.window.window = ctx.window; vm.createContext(ctx); vm.runInContext(code, ctx); const tick = (ms = 600) => new Promise(r => setTimeout(r, ms)); await tick();
-assert.equal(els['.ver'].textContent, 'v4', 'marca v3');
+assert.equal(els['.ver'].textContent, 'v5', 'marca v3');
 els['#q'].oninput({ target: { value: 'burgos' } }); els['#results'].onclick({ target: { closest: () => ({ dataset: { m: '09059' } }) } }); await tick();
-assert.deepEqual([...els['#tabs'].innerHTML.matchAll(/data-tab="\w+"[^>]*>([^<]+)</g)].map(m => m[1]), ['Resultados', 'Resumen', 'Cruce']); assert.deepEqual([...els['#toolnav'].innerHTML.matchAll(/data-tool="\w+"[^>]*>([^<]+)</g)].map(m => m[1]), ['Ideología', 'Fortaleza', 'Suma']);
+assert.deepEqual([...els['#tabs'].innerHTML.matchAll(/data-tab="\w+"[^>]*>([^<]+)</g)].map(m => m[1]), ['Resultados', 'Resumen']); assert.deepEqual([...els['#toolnav'].innerHTML.matchAll(/data-tool="\w+"[^>]*>([^<]+)</g)].map(m => m[1]), ['Ideología', 'Fortaleza', 'Suma']);
 const p = els['#panel'].innerHTML; assert.ok(p.includes('Resultados por candidatura') && !p.includes('id="tool-'), 'las herramientas ya no están en Resultados');
 els['#toolnav'].onclick({ target: { closest: () => ({ dataset: { tool: 'suma' } }) } }); assert.ok(els['#toolbody'].hidden === false && els['#toolbody'].innerHTML.includes('data-cod='), 'el menú inferior abre Suma');
 assert.equal(rec.layers.length, 147); assert.match(rec.layers[0].tip(), /^Distrito \d\d - Sección \d{3}/);
+els['.main-nav'].onclick({ target: { closest: () => ({ dataset: { view: 'cruce' } }) } }); assert.ok(els['#cx'].innerHTML.includes('falacia ecológica') && (els['#cx'].innerHTML.match(/<circle/g) || []).length === 147, 'Cruce funciona');
 els['.main-nav'].onclick({ target: { closest: () => ({ dataset: { view: 'concejales' } }) } }); const dh = els['#dh'].innerHTML;
 assert.ok(dh.includes('Barrera legal del 5 %') && dh.includes('Tabla de cocientes') && dh.includes('Burgos') && els['#dh'].hidden === false && els['main'].hidden === true && els['#toolbar'].hidden === true, 'Concejales funciona (y oculta el menú inferior, que actúa sobre el mapa)');
-console.log('OK index.html único: v4, menú lateral con Cruce, menú inferior, Concejales');
+console.log('OK index.html único: v5, Cruce, menú lateral de dos opciones, menú inferior, Concejales');

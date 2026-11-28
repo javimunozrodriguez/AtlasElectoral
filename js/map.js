@@ -3,6 +3,7 @@ let map, layer, legend, base;
 export function init(id) {
   map = L.map(id, { zoomControl: true, preferCanvas: true }).setView([40.2, -3.7], 6);
   base = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, opacity: .55, attribution: '© OpenStreetMap' }).addTo(map);
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => map.invalidateSize()).observe(document.getElementById(id));   // contenedor con límites propios
   legend = L.control({ position: 'bottomleft' });
   legend.onAdd = () => { const d = L.DomUtil.create('div', 'legend'); d.hidden = true; legend._d = d; return d; };
   legend.addTo(map);

@@ -1,11 +1,11 @@
 // Orquestación: estado, selección de municipio, modalidades de mapa y paneles.
-import * as D from './data.js?v=4'; import * as C from './calc.js?v=4'; import { classify } from './strength.js?v=4'; import * as M from './map.js?v=4'; import * as U from './ui.js?v=4'; import { createStore } from './store.js?v=4'; import * as H from './dhondt_view.js?v=4';
+import * as D from './data.js?v=5'; import * as C from './calc.js?v=5'; import { classify } from './strength.js?v=5'; import * as M from './map.js?v=5'; import * as U from './ui.js?v=5'; import { createStore } from './store.js?v=5'; import * as H from './dhondt_view.js?v=5'; import * as X from './cruce.js?v=5'; import * as XV from './cruce_view.js?v=5';
 const $ = s => document.querySelector(s);
 const BLUES = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'], GREENS = ['#edf8e9', '#bae4b3', '#74c476', '#31a354', '#006d2c'], PURPLES = ['#f2f0f7', '#cbc9e2', '#9e9ac8', '#756bb1', '#54278f'], REDS = ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15'], GREYS = ['#f7f7f7', '#d9d9d9', '#bdbdbd', '#737373', '#252525'];
 const GRAMP = { izq: REDS, der: BLUES, na: GREYS }, isG = m => m.startsWith('g:');
 const RAMP = { participacion: GREENS, votos: BLUES, pct: BLUES, agregado: PURPLES };
 const CATCOL = { fuerte: '#0b4f9c', medio: '#7fb2de', debil: '#dbe9f6', sin: '#d9d9d9', na: '#d9d9d9' };
-const S = { election: null, index: [], cumun: null, muni: null, cands: {}, base: null, geo: [], provName: '', mode: 'participacion', cand: null, sel: new Set(), tab: 'resultados', tabs: 'abs', info: {}, tool: null, useAgg: false, val: null, view: null, names: {}, dh: { cod: null, extra: 0 }, page: 'mapa', store: null };
+const S = { election: null, index: [], cumun: null, muni: null, cands: {}, base: null, geo: [], provName: '', mode: 'participacion', cand: null, sel: new Set(), tab: 'resultados', tabs: 'abs', info: {}, tool: null, useAgg: false, val: null, view: null, names: {}, dh: { cod: null, extra: 0 }, page: 'mapa', store: null, cx: { x: { kind: 'part' }, y: { kind: 'part' }, excl: true, win: null, grp: null, note: '' } };
 const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const TOOL_ID = m => isG(m) ? 'ideologia' : m === 'agregado' ? 'suma' : m === 'fortaleza' ? 'fortaleza' : null;
 const groupCods = g => Object.keys(S.muni.off || {}).filter(c => S.store.groupOf(S.cands[c]) === g);
@@ -57,8 +57,7 @@ function fstats() {
 }
 function render() {
   const p = $('#panel'), top = p.scrollTop; $('#tabs').innerHTML = U.tabsHtml(S.tab);
-  if (S.tab === 'cruce') p.innerHTML = U.cruce();
-  else if (!S.muni) p.innerHTML = '<p class="mut">Busca un municipio para ver sus resultados.</p>';
+  if (!S.muni) p.innerHTML = '<p class="mut">Busca un municipio para ver sus resultados.</p>';
   else if (S.muni.small || S.tab === 'resumen') p.innerHTML = U.resumen(S);
   else p.innerHTML = U.resultados(S);
   p.scrollTop = top;   // al repintar no se pierde la posición de desplazamiento
@@ -82,7 +81,7 @@ function refresh(redraw) {
   if (redraw) M.draw(S.geo, styleFn, id => U.secLabel(id) + ' · ' + (S.geoNr.has(id) ? 'sin resultados' : valText(id)), popFn); else M.restyle(styleFn);
   render();
 }
-async function selectMuni(cumun) { await selectMuni0(cumun); renderDh(); }
+async function selectMuni(cumun) { await selectMuni0(cumun); renderDh(); renderCx(); }
 async function selectMuni0(cumun) {
   const e = S.index.find(x => x[0] === cumun); S.cumun = cumun; S.provName = e[2]; $('#q').value = e[1] + ' (' + e[2] + ')'; $('#results').hidden = true;
   S.muni = null; S.geo = []; M.clear();
@@ -94,20 +93,38 @@ async function selectMuni0(cumun) {
   S.base = C.sumSections(S.muni.s);
   const rows = C.resultRows(S.muni, S.cands); S.cand = rows[0]?.cod; S.sel = new Set(S.cand ? [S.cand] : []);
   $('#cand').innerHTML = rows.map(r => `<option value="${r.cod}">${U.esc(r.siglas)} (${U.n0(r.votos)})</option>`).join('');
-  S.dh = { cod: S.cand, extra: 0 }; S.tab = 'resultados'; refresh(true);
+  S.dh = { cod: S.cand, extra: 0 }; initCx(); S.tab = 'resultados'; refresh(true);
 }
 function search(q) {
   const box = $('#results'), n = norm(q.trim()); if (n.length < 2) { box.hidden = true; return; }
   const hits = S.index.filter(x => norm(x[1]).startsWith(n)).concat(S.index.filter(x => !norm(x[1]).startsWith(n) && norm(x[1]).includes(n))).slice(0, 12);
   box.innerHTML = hits.map(x => `<li data-m="${x[0]}">${U.esc(x[1])} <span>${U.esc(x[2])}${x[3] === 1 ? ' · sin mapa (<250 hab.)' : x[3] === 0 ? ' · sin resultados' : ''}</span></li>`).join('') || '<li class="mut">Sin coincidencias</li>'; box.hidden = false;
 }
+// ---- Cruce
+function cxCtx() { return X.makeCtx({ secs: S.muni.s, cands: S.cands, off: S.muni.off, sel: S.sel, groupOf: s => S.store.groupOf(s), groups: S.store.groups() }); }
+function initCx() {
+  S.cx = { x: { kind: 'part' }, y: { kind: 'part' }, excl: true, win: null, grp: null, note: '' };
+  if (S.muni && S.muni.off) { const p = X.presets(cxCtx(), S.cand)[0]; if (p) { S.cx.x = { ...p.x }; S.cx.y = { ...p.y }; } }
+}
+function cxFix(sp) {   // valores por defecto coherentes al cambiar de variable
+  const cm = X.hasMeasure(sp.kind);
+  if (sp.kind === 'cand' && !S.muni.off[sp.cod]) sp.cod = S.cand; if (sp.kind === 'grupo' && !sp.group) sp.group = 'izq';
+  if (cm) { if (!X.MEASURES[cm].some(m => m[0] === sp.measure)) sp.measure = cm === 'bn' ? 'abs' : 'pct'; } else delete sp.measure;
+}
+function toggleSet(cur, all, key) { const s = new Set(cur || all); s.has(key) ? s.delete(key) : s.add(key); return s.size === all.length ? null : s; }
+function renderCx() {
+  if (S.page !== 'cruce') return; const box = $('#cx'), top = box.scrollTop;
+  if (!S.muni || S.muni.small || !S.muni.off) box.innerHTML = '<p class="mut">Busca un municipio con resultados por sección para usar el Cruce.</p>';
+  else { const ctx = cxCtx(); ctx.presetList = X.presets(ctx, S.cand); box.innerHTML = XV.html(S, ctx, X.dataset(ctx, S.cx), S.cx); }
+  box.scrollTop = top;
+}
 function renderDh() { if (S.page === 'concejales') $('#dh').innerHTML = H.html(S); }
-function setPage(p) { S.page = p; $('main').hidden = p !== 'mapa'; $('#dh').hidden = p !== 'concejales'; $('#toolbar').hidden = p !== 'mapa'; document.body.dataset.view = p; if (p === 'mapa') { M.resize(); if (S.muni && !S.muni.small) refresh(true); } else renderDh(); }
+function setPage(p) { S.page = p; $('main').hidden = p !== 'mapa'; $('#dh').hidden = p !== 'concejales'; $('#cx').hidden = p !== 'cruce'; $('#toolbar').hidden = p !== 'mapa'; document.body.dataset.view = p; if (p === 'mapa') { M.resize(); if (S.muni && !S.muni.small) refresh(true); } else { renderDh(); renderCx(); } }
 async function loadElection(id) {
   S.election = id; S.index = await D.index(id); S.val = await D.validation(id); S.muni = null; S.cumun = null; M.clear(); render();
 }
 async function init() {
-  document.querySelector('.ver').textContent = 'v4';   // marca visible: confirma que se ha cargado el JavaScript nuevo
+  document.querySelector('.ver').textContent = 'v5';   // marca visible: confirma que se ha cargado el JavaScript nuevo
   if (location.protocol === 'file:') $('#panel').innerHTML = '<p class="warn">Abre la aplicación desde un servidor local: <code>python3 -m http.server</code> y visita http://localhost:8000</p>';
   S.store = createStore(); M.init('map'); const els = await D.elections(); $('#elec').innerHTML = els.map(e => `<option value="${e.id}">${e.label}</option>`).join('');
   $('#elec').onchange = e => loadElection(e.target.value); await loadElection(els[0].id);
@@ -117,6 +134,18 @@ async function init() {
   $('#mode').onchange = e => { S.mode = e.target.value; S.tab = S.mode === 'participacion' ? 'resumen' : 'resultados'; const t = TOOL_ID(S.mode); if (t) S.tool = t; refresh(false); $('#panel').scrollTop = 0; };
   $('#cand').onchange = e => { S.cand = e.target.value; refresh(false); };
   $('#base').onchange = e => M.toggleBase(e.target.checked);
+  $('#cx').onchange = e => { const d = e.target.dataset;
+    if (d.ax) { const sp = S.cx[d.ax]; sp[d.f] = e.target.value; if (d.f === 'kind') cxFix(sp); S.cx.note = ''; } else if (d.flt === 'incomplete') S.cx.excl = e.target.checked; renderCx(); };
+  $('#cx').onclick = e => { const c = e.target.closest.bind(e.target), ctx = cxCtx(), D = X.dataset(ctx, S.cx), pr = c('[data-preset]'), w = c('[data-win]'), g = c('[data-grp]');
+    if (pr) { const p = X.presets(ctx, S.cand).find(q => q.id === pr.dataset.preset); if (p) { S.cx.x = { ...p.x }; S.cx.y = { ...p.y }; S.cx.note = p.warn || ''; } }
+    if (w) S.cx.win = toggleSet(S.cx.win, [...D.winCounts.keys()], w.dataset.win);
+    if (g) S.cx.grp = toggleSet(S.cx.grp, [...ctx.groups.map(q => q.id), X.WIN_NONE], g.dataset.grp);
+    if (c('[data-swap]')) [S.cx.x, S.cx.y] = [S.cx.y, S.cx.x];
+    if (c('[data-resetf]')) { S.cx.excl = true; S.cx.win = null; S.cx.grp = null; }
+    renderCx(); };
+  $('#cx').onmouseover = $('#cx').onmousemove = e => { const c = e.target.closest('[data-tip]'), tip = $('#cxTip'); if (!c) { tip.hidden = true; return; }
+    tip.textContent = c.dataset.tip; tip.hidden = false; const r = $('#cxChart').getBoundingClientRect?.() || { left: 0, top: 0 }; tip.style.left = (e.clientX - r.left + 14) + 'px'; tip.style.top = (e.clientY - r.top + 14) + 'px'; };
+  $('#cx').onmouseout = () => { $('#cxTip').hidden = true; };
   $('#toolnav').onclick = e => { const b = e.target.closest('[data-tool]'); if (b) openTool(b.dataset.tool); };
   $('#tabs').onclick = e => { const b = e.target.closest('[data-tab]'); if (b) { S.tab = b.dataset.tab; render(); $('#panel').scrollTop = 0; } };
   $('#panel').onclick = $('#toolbody').onclick = e => { const b = e.target.closest('[data-tm]'); if (b) { S.tabs = b.dataset.tm; render(); } if (e.target.matches('[data-clear]')) { S.sel.clear(); refresh(false); } if (e.target.closest('[data-closetool]')) { S.tool = null; render(); } const inf = e.target.closest('[data-info]'); if (inf) { S.info[inf.dataset.info] = !S.info[inf.dataset.info]; render(); } const vm = e.target.closest('[data-viewmode]'); if (vm) { S.mode = vm.dataset.viewmode; $('#mode').value = S.mode; refresh(false); } const g = e.target.closest('[data-viewg]'); if (g) { S.mode = 'g:' + g.dataset.viewg; $('#mode').value = S.mode; refresh(false); } };

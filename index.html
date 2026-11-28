@@ -2,16 +2,15 @@
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Atlas electoral municipal</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
-<link rel="stylesheet" href="css/app.css?v=4"></head>
+<link rel="stylesheet" href="css/app.css?v=5"></head>
 <body data-view="mapa">
-<div id="stale" hidden style="background:#fff3cd;color:#664d03;padding:10px 14px;font:14px system-ui,sans-serif">⚠ La aplicación no se ha cargado completa: faltan archivos o los de la carpeta <b>js/</b> están desactualizados (debería verse «v4» junto al título). Sube la carpeta <b>js/</b> (y <b>css/</b>) al repositorio y recarga con Ctrl+Shift+R.</div>
+<div id="stale" hidden style="background:#fff3cd;color:#664d03;padding:10px 14px;font:14px system-ui,sans-serif">⚠ La aplicación no se ha cargado completa: faltan archivos o los de la carpeta <b>js/</b> están desactualizados (debería verse «v5» junto al título). Sube la carpeta <b>js/</b> (y <b>css/</b>) al repositorio y recarga con Ctrl+Shift+R.</div>
 <script>
 function staleShow(m){var s=document.getElementById('stale');s.hidden=false;if(m)s.insertAdjacentHTML('beforeend','<br><small>Detalle técnico: '+String(m).replace(/</g,'&lt;')+'</small>');}
 window.addEventListener('error',function(e){staleShow(e.message)});window.addEventListener('unhandledrejection',function(e){staleShow(e.reason&&e.reason.message||e.reason)});
 setTimeout(function(){var v=document.querySelector('.ver');if(!v||!v.textContent)staleShow();},4000);</script>
 <header>
   <div class="brand">Atlas electoral <small class="ver"></small></div>
-  <nav class="main-nav"><button data-view="mapa">Mapa</button><button data-view="concejales">Concejales</button></nav>
   <select id="elec" title="Elección"></select>
   <div class="search"><input id="q" type="search" placeholder="Buscar municipio…" autocomplete="off"><ul id="results" hidden></ul></div>
   <select id="mode" title="Modalidad de mapa">
@@ -22,9 +21,11 @@ setTimeout(function(){var v=document.querySelector('.ver');if(!v||!v.textContent
   <select id="cand" title="Candidatura"></select>
   <label class="chk"><input type="checkbox" id="base" checked> Mapa base</label>
 </header>
+<nav class="main-nav" aria-label="Secciones principales"><button data-view="mapa">Mapa</button><button data-view="concejales">Concejales</button><button data-view="cruce">Cruce</button></nav>
 <main><div id="map"></div><aside><nav id="tabs"></nav><div id="panel"></div></aside></main>
 <section id="dh" hidden></section>
+<section id="cx" hidden></section>
 <footer id="toolbar"><nav id="toolnav" aria-label="Herramientas de análisis territorial"></nav><div id="toolbody" hidden></div></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-<script type="module" src="js/main.js?v=4"></script>
+<script type="module" src="js/main.js?v=5"></script>
 </body></html>

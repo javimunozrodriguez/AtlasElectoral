@@ -50,17 +50,26 @@ Sube la carpeta completa (incluida `data/`, ~58 MB) a un repositorio y activa Pa
 - Tras actualizar a esta versión hay que regenerar `data/` (se añade el nombre completo de las candidaturas).
 
 ## Organización de la interfaz (v3)
-- **Navegación principal (cabecera):** Mapa | Concejales. Concejales es el antiguo apartado D'Hondt (misma funcionalidad). Para añadir otra sección principal basta un botón `data-view` en `index.html`, su contenedor y un caso en `setPage()` de `js/main.js`.
-- **Menú lateral:** Resultados, Resumen y Cruce (`TABS` en `js/ui.js`). «Cruce» es por ahora un marcador de posición.
+- **Navegación principal (v5):** barra horizontal con **Mapa | Concejales | Cruce**, los tres al mismo nivel. Concejales es el antiguo apartado D'Hondt (misma funcionalidad). Para añadir otra sección principal basta un botón `data-view` en `index.html`, su contenedor y un caso en `setPage()` de `js/main.js`.
+- **Menú lateral (solo en Mapa):** Resultados y Resumen (`TABS` en `js/ui.js`).
 - **Menú inferior (v4):** franja horizontal independiente bajo el mapa y el menú lateral, a todo el ancho, con **Ideología**, **Fortaleza** y **Suma**. Es persistente: sigue disponible en Resultados, Resumen y Cruce (se oculta solo en Concejales, que no usa el mapa). Pulsar una opción la abre y pone el mapa en esa modalidad; pulsarla de nuevo la cierra. Cada herramienta tiene su explicación didáctica (título o icono ⓘ, `INFO` en `js/ui.js`). La lógica es la misma (`grupos()`, `agregacion()`, `fortaleza()`); solo cambia dónde se monta (`renderTools()` en `js/main.js`).
 - **Resultados:** solo la tabla de resultados por candidatura.
 - **Validación:** se retira el apartado visible. `validation.json` se sigue generando y cargando porque alimenta los avisos de cada municipio (secciones sin polígono, etc.).
+
+## Cruce (v5)
+Dispersión de las secciones del municipio con dos variables a elegir, regresión lineal (pendiente, ordenada, r de Pearson, R²), Spearman ρ y n. Código: `js/cruce.js` (cálculo) y `js/cruce_view.js` (interfaz y SVG).
+- **Variables (solo las que existen por sección):** censo electoral (de escrutinio), votantes, participación %, abstención % y n.º, votos válidos, blancos y nulos (n.º o %), y para cada candidatura, para la Suma y para cada grupo de Ideología: votos, % s/ válidos, índice de fortaleza y peso de la sección en el voto municipal. No hay población por sección.
+- **Fórmulas:** participación = (cand. + blancos + nulos)/censo; % de voto = votos/válidos de la sección; índice = %sección/%municipio (misma base); peso = votos de la sección/votos del municipio; pendiente = Sxy/Sxx; r = Sxy/√(Sxx·Syy); R² = r²; ρ = Pearson sobre rangos con empates promediados.
+- **Ausentes:** una sección sin dato en alguna de las dos variables se descarta (nunca se rellena con 0); se informa del recuento.
+- **Filtros:** excluir secciones incompletas (sin censo o sin votos válidos), candidatura ganadora de la sección y agrupación líder (según tu Ideología).
 
 ## Pruebas
 ```
 node tests/test_calc.mjs
 node tests/test_real_data.mjs
 node tests/test_dhondt.mjs      # incluye contraste con el reparto oficial de los 5.272 municipios
+node tests/test_cruce.mjs       # regresión, Pearson, Spearman, variables, filtros
+python3 tests/verify_cruce.py   # contraste independiente con NumPy/SciPy
 node tests/test_app.mjs         # app real con DOM simulado y subruta tipo GitHub Pages
 python3 tests/verify_data.py <carpeta DAT> data/municipales-2023
 ```
@@ -77,7 +86,7 @@ python3 tests/verify_data.py <carpeta DAT> data/municipales-2023
 Comparación de partidos y de elecciones, evolución por sección, exportación CSV/Excel/PNG/GeoJSON y la carga de ficheros brutos desde el navegador (hoy se hace con el pipeline).
 
 ## Si en GitHub Pages no ves los cambios
-1. Junto al título debe verse **«v4»**. Si no aparece, el navegador (o el repositorio) tiene JavaScript antiguo.
+1. Junto al título debe verse **«v5»**. Si no aparece, el navegador (o el repositorio) tiene JavaScript antiguo.
 2. Recarga sin caché (Ctrl+Shift+R, o Cmd+Shift+R en Mac). GitHub Pages cachea unos minutos.
 3. Comprueba que en el repositorio están **todas** las carpetas: `js/`, `css/`, `data/`, `config/`, `pipeline/` y `index.html` en la raíz, no dentro de una subcarpeta `app/`.
 4. En la pestaña Actions del repositorio, el último despliegue («pages build and deployment») debe estar en verde.
